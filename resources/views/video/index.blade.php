@@ -29,14 +29,14 @@
                                                     aria-label="Close"></button>
                                             </div>
                                         @endif
-                                        <button class="btn btn-primary float-end m-1"><a href="{{route('audios.create')}}"
-                                                class="text-white">Ajouter un audio</a></button>
+                                        <button class="btn btn-primary float-end m-1"><a href="{{route('videos.create')}}"
+                                                class="text-white">Ajouter une video</a></button>
                                         <table class="table">
                                             <thead>
                                                 <tr>
                                                     <th>Titre</th>
                                                     <th>Auteur</th>
-                                                    <th>Code Audio</th>
+                                                    <th>Code <Video></Video></th>
                                                     <th>Source</th>
                                                     <th>Thématique</th>
                                                     <th>Description</th>
@@ -47,46 +47,49 @@
                                                     <th>Actions</th>
                                                 </tr>
                                             </thead>
-                                          @foreach ($audios as $audio)
+                                          @foreach ($videos as $video)
                                                 <tbody>
                                                     <tr>
                                                         <td>
-                                                           {{$audio->title}}
+                                                           {{$video->title}}
                                                         </td>
                                                         <td>
-                                                            {{$audio->auteur}}
+                                                            {{$video->auteur}}
                                                         </td>
                                                         <td>
-                                                            {{$audio->code_media}}
+                                                            {{$video->code_media}}
                                                         </td>
                                                         <td>
-                                                            {{$audio->source->label}}
+                                                            {{$video->source->label}}
                                                         </td>
                                                             <td>
-                                                                @foreach ($audio->custom as $thematique)
+                                                                @foreach ($video->custom as $thematique)
                                                                     {{ $thematique->label }}
                                                                 @endforeach
                                                             </td>
                                                         <td>
-                                                            {{$audio->description}}
+                                                            {{$video->description}}
                                                         </td>
+                                                        {{-- <td>
+                                                            {!! $video->media !!}
+                                                        </td> --}}
                                                         <td>
-                                                            @if ($audio->statut == 0)
+                                                            @if ($video->statut == 0)
                                                                 Non publié
                                                             @else
                                                                 Publié
                                                             @endif
                                                         </td>
                                                         <td>
-                                                            {{$audio->user->firstname}} {{$audio->user->lastname}}
+                                                            {{$video->user->firstname}} {{$video->user->lastname}}
                                                         </td>
                                                         <td class="d-flex">
-                                                            <a href="{{route('audios.edit',$audio->id)}}">
+                                                            <a href="{{route('videos.edit',$video->id)}}">
                                                                 <button type="submit" class="btn btn-success">
                                                                     Editer
                                                                 </button>
                                                             </a>
-                                                            <form action="{{ route('audios.destroy', $audio->id) }}"
+                                                            <form action="{{ route('videos.destroy', $video->id) }}"
                                                                 method="post">
                                                                 @csrf
                                                                 @method('DELETE')
@@ -101,7 +104,7 @@
                                         </table>
                                     </div>
                                 </div>
-                                {{$audios->links()}}
+                                {{$videos->links()}}
                             </div>
                         </div>
                         <!-- Basic Tables end -->

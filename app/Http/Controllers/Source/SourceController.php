@@ -14,8 +14,9 @@ class SourceController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index()
-    {   $sources = Source::idDescending()->paginate(4);
-        return view('sourceManage.index',compact('sources'));
+    {
+        $sources = Source::idDescending()->paginate(4);
+        return view('sourceManage.index', compact('sources'));
     }
 
     /**
@@ -36,11 +37,11 @@ class SourceController extends Controller
      */
     public function store(Request $request)
     {
-        $source =$request->validate([
-            'label'=> 'required|string'
+        $source = $request->validate([
+            'label' => 'required|string'
         ]);
         Source::create($source);
-        return redirect()->route('source.index')->with('message','La source à été ajouté !!!');
+        return redirect()->route('source.index')->with('message', 'La source à été ajouté !!!');
     }
 
     /**
@@ -51,7 +52,7 @@ class SourceController extends Controller
      */
     public function show(Source $source)
     {
-        return view('sourceManage.show',compact('source'));
+        return view('sourceManage.show', compact('source'));
     }
 
     /**
@@ -62,7 +63,7 @@ class SourceController extends Controller
      */
     public function edit(Source $source)
     {
-        return view('sourceManage.edit',compact('source'));
+        return view('sourceManage.edit', compact('source'));
     }
 
     /**
@@ -77,11 +78,11 @@ class SourceController extends Controller
         $request->validate([
             'label' => 'required',
         ]);
-      
+
         $source->update($request->all());
-      
+
         return redirect()->route('source.index')
-                        ->with('message','Source mis à jour !!!');
+            ->with('message', 'Source mis à jour !!!');
     }
 
     /**
@@ -93,8 +94,8 @@ class SourceController extends Controller
     public function destroy(Source $source)
     {
         $source->delete();
-       
+
         return redirect()->route('source.index')
-                        ->with('message','Source supprimée!!!');
+            ->with('message', 'Source supprimée!!!');
     }
 }

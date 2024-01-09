@@ -50,9 +50,9 @@
                 </li>
                 <li class="dropdown nav-item" data-menu="dropdown"><a class="dropdown-toggle nav-link d-flex align-items-center" href="#" data-bs-toggle="dropdown"><i data-feather="image"></i><span >Gestion de Médias</span></a>
                     <ul class="dropdown-menu" data-bs-popper="none">
-                        <li data-menu=""><a class="dropdown-item d-flex align-items-center" href="{{route('audio.index')}}"  ><i data-feather="volume-2"></i><span >Audio</span></a>
+                        <li data-menu=""><a class="dropdown-item d-flex align-items-center" href="{{route('audios.index')}}"  ><i data-feather="volume-2"></i><span >Audio</span></a>
                         </li>
-                        <li data-menu=""><a class="dropdown-item d-flex align-items-center" href="#" data-i18n="Raise Support" target="_blank"><i data-feather="video"></i><span data-i18n="Raise Support">Vidéo</span></a>
+                        <li data-menu=""><a class="dropdown-item d-flex align-items-center" href="{{route('videos.index')}}" data-i18n="Raise Support" target="_blank"><i data-feather="video"></i><span data-i18n="Raise Support">Vidéo</span></a>
                         </li>
                     </ul>
                 </li>

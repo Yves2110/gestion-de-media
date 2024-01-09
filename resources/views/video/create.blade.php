@@ -31,12 +31,12 @@
                                                         aria-label="Close"></button>
                                                 </div>
                                             @endif
-                                            <h6 class="text-uppercase text-center">Formulaire d'ajout d'un audio</h6>
-                                            <form action="{{ route('audios.store') }}" method="post" enctype="multipart/form-data">
+                                            <h6 class="text-uppercase text-center">Formulaire d'ajout d'une video</h6>
+                                            <form action="{{ route('videos.store') }}" method="post" enctype="multipart/form-data">
                                                 @csrf
                                                 <div class="mb-2">
                                                     <input type="hidden" name="user_id" value="{{Auth::user()->id}}">
-                                                    <input type="hidden" name="type" value="0">
+                                                    <input type="hidden" name="type" value="1">
                                                     <label class="form-label">Titre</label>
                                                     <input type="text" name="title" class="form-control ">
                                                     @error('title')
@@ -62,7 +62,7 @@
                                                       </select>
                                                       <label class="form-label" for="basicSelect">Sélection une thématique</label> 
                                                       <select class="form-select" name="thematique_id[]" multiple aria-label="multiple select example">
-                                                        <option >Open this select menu</option>
+                                                        <option selected>Open this select menu</option>
                                                         @foreach ($thematiques as $thematique)
                                                         <option value="{{$thematique->id}}">{{$thematique->label}}</option>
                                                         @endforeach
@@ -71,9 +71,9 @@
 
 
                                                       <div class="my-2">
-                                                        <label for="formFile" class="form-label">Lien audio</label>
+                                                        <label for="formFile" class="form-label">Lien vidéo</label>
                                                         <input class="form-control" name="media" type="text" id="formFile">
-                                                        @error('audio')
+                                                        @error('video')
                                                         <h6 class="fw-bold mt-1 text-danger">{{ $message }}
                                                         @enderror
                                                       </div>

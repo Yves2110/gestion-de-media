@@ -3,14 +3,13 @@
 namespace App\Http\Controllers\Media;
 
 use App\Http\Controllers\Controller;
-use App\Models\Audio;
 use App\Models\Media;
 use App\Models\Source;
 use App\Models\Thematique;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
-class AudioController extends Controller
+class VideoController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -19,8 +18,8 @@ class AudioController extends Controller
      */
     public function index()
     {
-        $audios = Media::IsAudio()->IdDescending()->paginate(4);
-        return view('audio.index',compact('audios'));
+        $videos = Media::Isvideo()->IdDescending()->paginate(4);
+        return view('video.index',compact('videos'));
     }
 
 
@@ -34,7 +33,7 @@ class AudioController extends Controller
     {
         $sources = Source::all();
         $thematiques = Thematique::all();
-        return view('audio.create',compact('sources','thematiques'));
+        return view('video.create',compact('sources','thematiques'));
     }
 
     /**
@@ -45,9 +44,17 @@ class AudioController extends Controller
      */
     public function store(Request $request)
     {
-       
+   
        
     $statut = $request->has('statut') ? 1 : 0;
+     $input = $request->all();
+      
+    //   if ($video = $request->file('media')) {
+    //         $destinationPath = 'video/';
+    //         $media = date('YmdHis') . "." . $video->getClientOriginalExtension();
+    //         $video->move($destinationPath, $media);
+    //         $input['media'] = "$media";
+    //     }
 
     Media::create([
         'user_id'=>$request->user_id,
@@ -62,7 +69,7 @@ class AudioController extends Controller
         'auteur'=>$request->auteur,
         'code_media'=>$request->code_media,
     ]);
-    return redirect()->route('audios.index')->with('message','Enregistrement effectué avec succès');
+    return redirect()->route('videos.index')->with('message','Enregistrement effectué avec succès');
     }
 
     /**
@@ -84,10 +91,10 @@ class AudioController extends Controller
      */
     public function edit($id)
     {
-        $audio = Media::find($id);
+        $video = Media::find($id);
         $sources = Source::all();
         $thematiques = Thematique::all();
-        return view('audio.edit',compact('sources','thematiques','audio'));
+        return view('video.edit',compact('sources','thematiques','video'));
     }
 
     /**
@@ -101,7 +108,7 @@ class AudioController extends Controller
     
     public function update(Request $request, $id)
     {
-        $audio = Media::findOrFail($id);
+        $video = Media::findOrFail($id);
     
         $request->validate([
             'user_id' => 'required|integer|exists:users,id',
@@ -111,7 +118,7 @@ class AudioController extends Controller
             'description' => 'nullable|string|max:255',
             'type' => 'required', // Ajoutez ici les valeurs valides pour le champ type
             'statut' => 'boolean',
-            'audio' => 'nullable|mimes:mp3,wav,mp4', // Ajoutez ici les formats de fichier audio autorisés
+            'video' => 'required', // Ajoutez ici les formats de fichier audio autorisés
             'title' => 'required|string|max:255',
             'auteur' => 'required|string|max:255',
             'code_media' => 'required|string|max:255',
@@ -121,34 +128,34 @@ class AudioController extends Controller
         $statut = $request->has('statut') ? 1 : 0;
     
         // Mettre à jour le fichier audio si un nouveau fichier est fourni
-        if ($audioFile = $request->file('audio')) {
+        if ($videoFile = $request->file('video')) {
             // Supprimer le fichier audio actuel s'il existe
-            if (Storage::disk('public')->exists('audio/' . $audio->audio)) {
-                Storage::disk('public')->delete('audio/' . $audio->audio);
+            if (Storage::disk('public')->exists('video/' . $video->video)) {
+                Storage::disk('public')->delete('video/' . $video->video);
             }
     
             // Enregistrer le nouveau fichier audio
-            $destinationPath = 'audio/';
-            $media = date('YmdHis') . "." . $audioFile->getClientOriginalExtension();
-            $audioFile->move($destinationPath, $media);
-            $audio->audio = $media;
+            $destinationPath = 'video/';
+            $media = date('YmdHis') . "." . $videoFile->getClientOriginalExtension();
+            $videoFile->move($destinationPath, $media);
+            $video->video = $media;
         }
     
         // Mettre à jour les autres champs du modèle
-        $audio->user_id = $request->user_id;
-        $audio->source_id = $request->source_id;
-        $audio->thematique_id = json_encode($request->thematique_id);
-        $audio->description = $request->description;
-        $audio->type = $request->type;
-        $audio->statut = $statut;
-        $audio->title = $request->title;
-        $audio->auteur = $request->auteur;
-        $audio->code_media = $request->code_media;
+        $video->user_id = $request->user_id;
+        $video->source_id = $request->source_id;
+        $video->thematique_id = json_encode($request->thematique_id);
+        $video->description = $request->description;
+        $video->type = $request->type;
+        $video->statut = $statut;
+        $video->title = $request->title;
+        $video->auteur = $request->auteur;
+        $video->code_media = $request->code_media;
     
         // Enregistrer les modifications dans la base de données
-        $audio->save();
+        $video->save();
     
-        return redirect()->route('audios.index')->with('message', 'Mise à jour effectuée avec succès');
+        return redirect()->route('videos.index')->with('message', 'Mise à jour effectuée avec succès');
     }
     
 
@@ -160,10 +167,10 @@ class AudioController extends Controller
      */
     public function destroy($id)
     {
-        $audio = Media::find($id);
-        $audio->delete();
+        $video = Media::find($id);
+        $video->delete();
 
-        return redirect()->route('audios.index')
-            ->with('message', 'Audio supprimée!!!');
+        return redirect()->route('videos.index')
+            ->with('message', 'video supprimée!!!');
     }
 }

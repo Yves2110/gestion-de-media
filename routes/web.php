@@ -8,6 +8,7 @@ use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Dashboard\ProfileController;
 use App\Http\Controllers\Manage\UserManageController;
 use App\Http\Controllers\Media\AudioController;
+use App\Http\Controllers\Media\VideoController;
 use App\Http\Controllers\Source\SourceController;
 use App\Http\Controllers\Thematique\ThematiqueController;
 
@@ -28,6 +29,11 @@ Route::middleware(['admin'])->group(function () {
         Route::get('addAdmin', 'indexAdmin')->name('addAdmin');
         Route::post('registrationAdmin', 'registrationAdmin')->name('admin.store');
     });
+    Route::resource('source', SourceController::class);
+    Route::resource('thematique', ThematiqueController::class);
+    Route::resource('audios', AudioController::class);
+    Route::resource('videos', VideoController::class);
+
     Route::controller(DashboardController::class)->group(function () {
         Route::get('dashboard', 'index')->name('dashboard');
         Route::get('profile', 'profile')->name('profile');
@@ -38,7 +44,7 @@ Route::middleware(['admin'])->group(function () {
         Route::post('changeData', 'updateData')->name('changeData');
         Route::post('changepassword', 'updatepassword')->name('changePassword');
     });
-    
+
     Route::controller(UserManageController::class)->group(function () {
         Route::get('userManage', 'index')->name('userManage');
         Route::get('activate/{id}', 'activate')->name('activate');
@@ -54,9 +60,6 @@ Route::controller(UserManageController::class)->group(function () {
     Route::post('reset-password', 'submitResetPasswordForm')->name('reset.password.post');
 });
 
-Route::resource('source', SourceController::class);
-Route::resource('thematique', ThematiqueController::class);
-Route::resource('audio', AudioController::class);
 Route::get('/', [LoginController::class, 'loginIndex']);
 Route::post('login', [LoginController::class, 'login'])->name('login');
 Route::get('register', [RegisterController::class, 'index']);
