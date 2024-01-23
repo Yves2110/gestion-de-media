@@ -56,7 +56,7 @@
                         </li>
                     </ul>
                 </li>
-                <li class="dropdown nav-item" data-menu="dropdown"><a class=" nav-link d-flex align-items-center" data-bs-toggle="dropdown"><i data-feather="folder"></i><span>Gestion de documents</span></a>
+                <li class="dropdown nav-item" data-menu="dropdown"><a class=" nav-link d-flex align-items-center" href="{{route('documents.index')}}" ><i data-feather="folder"></i><span>Gestion de documents</span></a>
                     <ul  data-bs-popper="none"></ul>
                 </li>
             </ul>

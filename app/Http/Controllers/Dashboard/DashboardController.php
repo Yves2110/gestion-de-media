@@ -17,17 +17,6 @@ class DashboardController extends Controller
         }
     }
 
-    public function profile(){
-        return view('dashboard.profile.profile');
-    }
-    public function logout(Request $request)
-    {
-        Auth::logout();
-
-        $request->session()->invalidate();
-
-        $request->session()->regenerateToken();
-
-        return redirect('/');
-    }
+   
+   
 }

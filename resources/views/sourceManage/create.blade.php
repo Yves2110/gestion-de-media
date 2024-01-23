@@ -34,14 +34,14 @@
                                             <h6 class="text-uppercase text-center">Formulaire d'ajout d'une source</h6>
                                             <form action="{{ route('source.store') }}" method="post">
                                                 @csrf
-                                                <div class="mb-2">
+                                                <div class="">
                                                     <label class="form-label">Source</label>
-                                                    <input type="text" name="label" class="form-control ">
+                                                    <input type="text" name="label" placeholder="Saisir une source" class="form-control ">
                                                     @error('label')
-                                                    <h6 class="fw-bold mt-1 text-danger">{{ $message }}
+                                                    <h6 class="fw-bold  text-danger">{{ $message }}
                                                     @enderror
-                                                    <button type="submit" class="btn btn-primary mt-2">Valider</button>
                                                 </div>
+                                                <button type="submit" class="btn btn-primary mt-2">Valider</button>
                                             </form>
                                         </div>
                                     </div>

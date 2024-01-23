@@ -17,8 +17,17 @@
                     <div class="content-body">
                         <!-- Basic Tables start -->
                         <div class="row" id="basic-table">
-                            <div class="col-10 offset-1">
-                                <div class="card">
+                            
+                            <div class="col-md-12">
+                                <div class="card ">
+                                    <div class="row">
+                                        <div class="col-8"></div>
+                                    <div class="col-4 ">
+                                        <button class="btn btn-primary m-1 float-end ">
+                                            <a href="{{ route('audios.create') }}" class="text-white">Ajouter un audio</a>
+                                        </button>
+                                    </div>
+                                    </div>
                                     <div class="table-responsive">
                                         @if ($message = Session::get('message'))
                                             <div class="alert alert-success mt-1 alert-dismissible" role="alert">
@@ -29,79 +38,107 @@
                                                     aria-label="Close"></button>
                                             </div>
                                         @endif
-                                        <button class="btn btn-primary float-end m-1"><a href="{{route('audios.create')}}"
-                                                class="text-white">Ajouter un audio</a></button>
-                                        <table class="table">
-                                            <thead>
-                                                <tr>
-                                                    <th>Titre</th>
-                                                    <th>Auteur</th>
-                                                    <th>Code Audio</th>
-                                                    <th>Source</th>
-                                                    <th>Thématique</th>
-                                                    <th>Description</th>
-                                                    <th>Statut</th>
-                                                    <th>
-                                                        Enregistré par
-                                                    </th>
-                                                    <th>Actions</th>
-                                                </tr>
-                                            </thead>
-                                          @foreach ($audios as $audio)
-                                                <tbody>
+                                       
+                                        <div class="table-responsive">
+                                            <table class="table">
+                                                <thead>
                                                     <tr>
-                                                        <td>
-                                                           {{$audio->title}}
-                                                        </td>
-                                                        <td>
-                                                            {{$audio->auteur}}
-                                                        </td>
-                                                        <td>
-                                                            {{$audio->code_media}}
-                                                        </td>
-                                                        <td>
-                                                            {{$audio->source->label}}
-                                                        </td>
-                                                            <td>
+                                                        <th scope="col" class="text-nowrap">Titre</th>
+                                                        <th scope="col" class="text-nowrap">Auteur</th>
+                                                        <th scope="col" class="text-nowrap">Code Audio</th>
+                                                        <th scope="col" class="text-nowrap">Source</th>
+                                                        <th scope="col" class="text-nowrap">Thématique</th>
+                                                        <th scope="col" class="text-nowrap">Description</th>
+                                                        <th scope="col" class="text-nowrap">Statut</th>
+                                                        <th scope="col" class="text-nowrap">
+                                                            Enregistré par
+                                                        </th>
+                                                        <th class="text-nowrap text-center">Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                @foreach ($audios as $audio)
+                                                    <tbody>
+                                                        <tr>
+                                                            <td class="text-nowrap">
+                                                                {{ $audio->title }}
+                                                            </td>
+                                                            <td class="text-nowrap">
+                                                                {{ $audio->auteur }}
+                                                            </td>
+                                                            <td class="text-nowrap">
+                                                               @if ( $audio->code_media == null )
+                                                                   <p class="badge bg-info">Néant</p>
+                                                               @else
+                                                               {{ $audio->code_media }}
+                                                               @endif
+                                                            </td>
+                                                            <td class="text-nowrap">
+                                                                {{ $audio->source->label }}
+                                                            </td>
+                                                            <td class="text-nowrap">
                                                                 @foreach ($audio->custom as $thematique)
                                                                     {{ $thematique->label }}
                                                                 @endforeach
                                                             </td>
-                                                        <td>
-                                                            {{$audio->description}}
-                                                        </td>
-                                                        <td>
-                                                            @if ($audio->statut == 0)
-                                                                Non publié
-                                                            @else
-                                                                Publié
-                                                            @endif
-                                                        </td>
-                                                        <td>
-                                                            {{$audio->user->firstname}} {{$audio->user->lastname}}
-                                                        </td>
-                                                        <td class="d-flex">
-                                                            <a href="{{route('audios.edit',$audio->id)}}">
-                                                                <button type="submit" class="btn btn-success">
-                                                                    Editer
-                                                                </button>
-                                                            </a>
-                                                            <form action="{{ route('audios.destroy', $audio->id) }}"
-                                                                method="post">
-                                                                @csrf
-                                                                @method('DELETE')
-                                                                <button type="submit" class="btn btn-danger mx-2">
-                                                                    Supprimer
-                                                                </button>
-                                                            </form>
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
+                                                            <td class="text-nowrap">
+                                                               @if ( $audio->description == null)
+                                                                   <p class="badge bg-info">Néant</p>
+                                                               @else
+                                                               {{ $audio->description }}
+                                                               @endif
+                                                            </td>
+                                                            <td class="text-nowrap">
+                                                                @if ($audio->statut === 0)
+                                                                    <a href="{{ route('activateAudio', $audio->id) }}">
+                                                                        <button type="submit" class="btn btn-warning">
+                                                                            Publié
+                                                                        </button>
+                                                                    </a>
+                                                                @else
+                                                                    <a href="{{ route('desactivateAudio', $audio->id) }}">
+                                                                        <button type="submit" class="btn btn-success">
+                                                                            Non Publié
+                                                                        </button>
+                                                                    </a>
+                                                                @endif
+                                                            </td>
+                                                            <td class="text-nowrap">
+                                                                {{ $audio->user->firstname }} {{ $audio->user->lastname }}
+                                                            </td>
+                                                            <td class="d-flex text-nowrap">
+
+                                                                @if ($audio->localisation == null)
+                                                                <a href="{{route('audioLocalisation',$audio->id)}}"><button type="submit" class="btn btn-dark mx-2">Ajouter localisation</button></a>
+                                                                @else
+                                                                <a href="{{ route('audios.show', $audio->id) }}">
+                                                                    <button type="submit" class="btn btn-warning mx-2">
+                                                                       Voir la Localisation
+                                                                    </button>
+                                                                </a>
+                                                                @endif
+
+                                                                <a href="{{ route('audios.edit', $audio->id) }}">
+                                                                    <button type="submit" class="btn btn-success">
+                                                                        Editer
+                                                                    </button>
+                                                                </a>
+                                                                <form action="{{ route('audios.destroy', $audio->id) }}"
+                                                                    method="post">
+                                                                    @csrf
+                                                                    @method('DELETE')
+                                                                    <button type="submit" class="btn btn-danger mx-2">
+                                                                        Supprimer
+                                                                    </button>
+                                                                </form>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
                                                 @endforeach
-                                        </table>
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
-                                {{$audios->links()}}
+                                {{ $audios->links() }}
                             </div>
                         </div>
                         <!-- Basic Tables end -->

@@ -10,6 +10,7 @@ use App\Providers\AdminAdded;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 
 class RegisterController extends Controller
 {
@@ -46,6 +47,7 @@ class RegisterController extends Controller
             'email' => 'bail|required|email|unique:users',
         ]);
 
+    
         $password = substr(str_shuffle(Hash::make(Str::random(10))), 0, 15);
 
         $userAdmin = User::create([

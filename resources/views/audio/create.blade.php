@@ -38,51 +38,44 @@
                                                     <input type="hidden" name="user_id" value="{{Auth::user()->id}}">
                                                     <input type="hidden" name="type" value="0">
                                                     <label class="form-label">Titre</label>
-                                                    <input type="text" name="title" class="form-control ">
+                                                    <input type="text" name="title" placeholder="Saisir un titre" class="form-control mb-1 ">
                                                     @error('title')
-                                                    <h6 class="fw-bold mt-1 text-danger">{{ $message }}
+                                                    <h6 class="fw-bold text-danger">{{ $message }}</h6>
                                                     @enderror
                                                     <label class="form-label">Auteur</label>
-                                                    <input type="text" name="auteur" class="form-control ">
+                                                    <input type="text" name="auteur" placeholder="Saisir le nom de l'auteur" class="form-control ">
                                                     @error('auteur')
-                                                    <h6 class="fw-bold mt-1 text-danger">{{ $message }}
+                                                    <h6 class="fw-bold mt-1 text-danger">{{ $message }}</h6>
                                                     @enderror
                                                     <label class="form-label">Code Média</label>
-                                                    <input type="text" name="code_media" class="form-control ">
-                                                    @error('code_media')
-                                                    <h6 class="fw-bold mt-1 text-danger">{{ $message }}
-                                                    @enderror
-                                                    <select class="form-select my-2" name="source_id" aria-label="Default select example">
-                                                        <option selected>Selectionner une source</option>
-                                                        @forelse ($sources as $source)
-                                                        <option value="{{$source->id}}">{{$source->label}}</option>
-                                                        @empty
-                                                            <p>Aucune source</p>
-                                                        @endforelse
+                                                    <input type="text" name="code_media"  placeholder="Saisir un code Media" class="form-control ">
+
+                                                    <select class="form-select my-2"  name="source_id"  aria-label="Default select example" required>
+                                                        <option value=""  >Selectionner une source</option>
+                                                        @foreach ($sources as $source)
+                                                        <option value="{{$source->id}}" >{{$source->label}}</option>
+                                                        @endforeach
                                                       </select>
+                                                      
                                                       <label class="form-label" for="basicSelect">Sélection une thématique</label> 
-                                                      <select class="form-select" name="thematique_id[]" multiple aria-label="multiple select example">
-                                                        <option >Open this select menu</option>
+                                                      <select class="form-select" name="thematique_id[]" multiple aria-label="multiple select example" required>
                                                         @foreach ($thematiques as $thematique)
                                                         <option value="{{$thematique->id}}">{{$thematique->label}}</option>
                                                         @endforeach
                                                       </select>
-                                                      <h6 class="text-danger fw-bold">Maintenir ctrl + clic droit de la souris pour selectionner plusieurs thémaques</h6>
+                                                      <h6 class="text-warning fw-bold">Maintenir ctrl + clic droit de la souris pour selectionner plusieurs thémaques</h6>
 
 
                                                       <div class="my-2">
                                                         <label for="formFile" class="form-label">Lien audio</label>
-                                                        <input class="form-control" name="media" type="text" id="formFile">
-                                                        @error('audio')
-                                                        <h6 class="fw-bold mt-1 text-danger">{{ $message }}
+                                                        <input class="form-control" name="media"  type="text" id="formFile">
+                                                        @error('media')
+                                                        <h6 class="fw-bold mt-1 text-danger">{{ $message }}</h6>
                                                         @enderror
                                                       </div>
 
                                                       <div class="form-floating my-1">
                                                         <textarea class="form-control" name="description" placeholder="Leave a comment here" id="floatingTextarea2" style="height: 100px"></textarea>
-                                                        @error('description')
-                                                        <h6 class="fw-bold mt-1 text-danger">{{ $message }}
-                                                        @enderror
                                                         <label for="floatingTextarea2">Description</label>
                                                       </div>
 
@@ -93,7 +86,7 @@
                                                         </label>
                                                       </div>
                                                      
-                                                    <button type="submit" class="btn btn-primary mt-2">Valider</button>
+                                                    <button type="submit" class="btn btn-primary mt-2 float-end">Valider</button>
                                                 </div>
                                             </form>
                                         </div>
@@ -109,5 +102,4 @@
     <div class="sidenav-overlay"></div>
     <div class="drag-target"></div>
     @include('dashboard.components.footer')
-    </body>
 @endsection

@@ -38,19 +38,19 @@
                                                     <input type="hidden" name="user_id" value="{{Auth::user()->id}}">
                                                     <input type="hidden" name="type" value="1">
                                                     <label class="form-label">Titre</label>
-                                                    <input type="text" name="title" class="form-control ">
+                                                    <input type="text" name="title" placeholder="Saisir un titre" class="form-control ">
                                                     @error('title')
-                                                    <h6 class="fw-bold mt-1 text-danger">{{ $message }}
+                                                    <h6 class="fw-bold mt-1 text-danger">{{ $message }}</h6>
                                                     @enderror
                                                     <label class="form-label">Auteur</label>
-                                                    <input type="text" name="auteur" class="form-control ">
+                                                    <input type="text" name="auteur" placeholder="Saisir un auteur" class="form-control ">
                                                     @error('auteur')
-                                                    <h6 class="fw-bold mt-1 text-danger">{{ $message }}
+                                                    <h6 class="fw-bold mt-1 text-danger">{{ $message }}</h6>
                                                     @enderror
                                                     <label class="form-label">Code Média</label>
-                                                    <input type="text" name="code_media" class="form-control ">
+                                                    <input type="text" name="code_media" placeholder="Saisir un code media" class="form-control ">
                                                     @error('code_media')
-                                                    <h6 class="fw-bold mt-1 text-danger">{{ $message }}
+                                                    <h6 class="fw-bold mt-1 text-danger">{{ $message }}</h6>
                                                     @enderror
                                                     <select class="form-select my-2" name="source_id" aria-label="Default select example">
                                                         <option selected>Selectionner une source</option>
@@ -73,15 +73,15 @@
                                                       <div class="my-2">
                                                         <label for="formFile" class="form-label">Lien vidéo</label>
                                                         <input class="form-control" name="media" type="text" id="formFile">
-                                                        @error('video')
-                                                        <h6 class="fw-bold mt-1 text-danger">{{ $message }}
+                                                        @error('media')
+                                                        <h6 class="fw-bold mt-1 text-danger">{{ $message }} </h6>
                                                         @enderror
                                                       </div>
 
                                                       <div class="form-floating my-1">
                                                         <textarea class="form-control" name="description" placeholder="Leave a comment here" id="floatingTextarea2" style="height: 100px"></textarea>
                                                         @error('description')
-                                                        <h6 class="fw-bold mt-1 text-danger">{{ $message }}
+                                                        <h6 class="fw-bold mt-1 text-danger">{{ $message }}</h6>
                                                         @enderror
                                                         <label for="floatingTextarea2">Description</label>
                                                       </div>
@@ -93,7 +93,7 @@
                                                         </label>
                                                       </div>
                                                      
-                                                    <button type="submit" class="btn btn-primary mt-2">Valider</button>
+                                                    <button type="submit" class="btn btn-primary mt-2 float-end">Valider</button>
                                                 </div>
                                             </form>
                                         </div>

@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Media;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\MediaRequest;
 use App\Models\Media;
 use App\Models\Source;
 use App\Models\Thematique;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Twilio\Rest\Api\V2010\Account\Message\MediaPage;
 
 class VideoController extends Controller
 {
@@ -42,25 +44,16 @@ class VideoController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(MediaRequest $request)
     {
    
        
     $statut = $request->has('statut') ? 1 : 0;
-     $input = $request->all();
-      
-    //   if ($video = $request->file('media')) {
-    //         $destinationPath = 'video/';
-    //         $media = date('YmdHis') . "." . $video->getClientOriginalExtension();
-    //         $video->move($destinationPath, $media);
-    //         $input['media'] = "$media";
-    //     }
 
     Media::create([
         'user_id'=>$request->user_id,
         'source_id'=>$request->source_id,
         'thematique_id'=>json_encode($request->thematique_id),
-        'source_id'=>$request->source_id,
         'description'=>$request->description,
         'type'=>$request->type,
         'statut'=>$statut,
@@ -78,9 +71,9 @@ class VideoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Media $video)
     {
-        //
+        return view('video.show', compact('video'));
     }
 
     /**
@@ -106,41 +99,29 @@ class VideoController extends Controller
      */
    
     
-    public function update(Request $request, $id)
+    public function update(MediaRequest $request, $id)
     {
         $video = Media::findOrFail($id);
     
-        $request->validate([
-            'user_id' => 'required|integer|exists:users,id',
-            'source_id' => 'required|integer|exists:sources,id',
-            'thematique_id' => 'required|array',
-            'thematique_id.*' => 'integer|exists:thematiques,id',
-            'description' => 'nullable|string|max:255',
-            'type' => 'required', // Ajoutez ici les valeurs valides pour le champ type
-            'statut' => 'boolean',
-            'video' => 'required', // Ajoutez ici les formats de fichier audio autorisés
-            'title' => 'required|string|max:255',
-            'auteur' => 'required|string|max:255',
-            'code_media' => 'required|string|max:255',
-        ]);
+        // $request->validate([
+        //     'user_id' => 'required|integer|exists:users,id',
+        //     'source_id' => 'required|integer|exists:sources,id',
+        //     'thematique_id' => 'required|array',
+        //     'thematique_id.*' => 'integer|exists:thematiques,id',
+        //     'description' => 'nullable|string|max:255',
+        //     'type' => 'required', // Ajoutez ici les valeurs valides pour le champ type
+        //     'statut' => 'boolean',
+        //     'video' => 'required', // Ajoutez ici les formats de fichier audio autorisés
+        //     'title' => 'required|string|max:255',
+        //     'auteur' => 'required|string|max:255',
+        //     'code_media' => 'required|string|max:255',
+        // ]);
     
         // Mettre à jour le statut
         $statut = $request->has('statut') ? 1 : 0;
     
-        // Mettre à jour le fichier audio si un nouveau fichier est fourni
-        if ($videoFile = $request->file('video')) {
-            // Supprimer le fichier audio actuel s'il existe
-            if (Storage::disk('public')->exists('video/' . $video->video)) {
-                Storage::disk('public')->delete('video/' . $video->video);
-            }
     
-            // Enregistrer le nouveau fichier audio
-            $destinationPath = 'video/';
-            $media = date('YmdHis') . "." . $videoFile->getClientOriginalExtension();
-            $videoFile->move($destinationPath, $media);
-            $video->video = $media;
-        }
-    
+       
         // Mettre à jour les autres champs du modèle
         $video->user_id = $request->user_id;
         $video->source_id = $request->source_id;
@@ -173,4 +154,45 @@ class VideoController extends Controller
         return redirect()->route('videos.index')
             ->with('message', 'video supprimée!!!');
     }
+
+    public function desactivate($id){
+        $video = Media::find($id);
+        $video->update([
+            'statut'=> 0
+        ]);
+        return back();
+    }
+    public function activate($id){
+        $video = Media::find($id);
+        $video->update([
+            'statut'=> 1
+        ]);
+        return back();
+    }
+
+    public function localisationIndex($id){
+        $video = Media::find($id);
+        return view('video.localisation', compact('video'));
+    }
+
+    public function addLocalisation(Request $request){
+       $getLocalisationId = $request->localisation_id;
+       Media::where('id',$getLocalisationId)->update([
+        'localisation'=>$request->localisation
+      ]);
+      return redirect()->route('videos.index')->with('message','Localisation Ajoutée !!');
+
+    }
+
+    public function removeLocalisation(Request $request)
+    {
+        $getLocalisationId = $request->localisation_id;
+       Media::where('id',$getLocalisationId)->update([
+        'localisation'=> null
+      ]);
+
+        return redirect()->route('videos.index')
+            ->with('message', 'localisation supprimée!!!');
+    }
+
 }

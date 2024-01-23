@@ -40,7 +40,7 @@
                                                     @error('label')
                                                     <h6 class="fw-bold mt-1 text-danger">{{ $message }}
                                                     @enderror
-                                                    <button type="submit" class="btn btn-primary mt-2">Valider</button>
+                                                    <button type="submit" class="btn btn-primary mt-2 float-end">Valider</button>
                                                 </div>
                                             </form>
                                         </div>

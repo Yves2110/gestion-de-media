@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Media;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\MediaRequest;
 use App\Models\Audio;
 use App\Models\Media;
 use App\Models\Source;
@@ -43,15 +44,13 @@ class AudioController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(MediaRequest $request)
     {
-       
-       
-    $statut = $request->has('statut') ? 1 : 0;
+     
+        $statut = $request->has('statut') ? 1 : 0;
 
     Media::create([
         'user_id'=>$request->user_id,
-        'source_id'=>$request->source_id,
         'thematique_id'=>json_encode($request->thematique_id),
         'source_id'=>$request->source_id,
         'description'=>$request->description,
@@ -71,9 +70,9 @@ class AudioController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Media $audio)
     {
-        //
+        return view('audio.show', compact('audio'));
     }
 
     /**
@@ -99,41 +98,28 @@ class AudioController extends Controller
      */
    
     
-    public function update(Request $request, $id)
+    public function update(MediaRequest $request, $id)
     {
         $audio = Media::findOrFail($id);
     
-        $request->validate([
-            'user_id' => 'required|integer|exists:users,id',
-            'source_id' => 'required|integer|exists:sources,id',
-            'thematique_id' => 'required|array',
-            'thematique_id.*' => 'integer|exists:thematiques,id',
-            'description' => 'nullable|string|max:255',
-            'type' => 'required', // Ajoutez ici les valeurs valides pour le champ type
-            'statut' => 'boolean',
-            'audio' => 'nullable|mimes:mp3,wav,mp4', // Ajoutez ici les formats de fichier audio autorisés
-            'title' => 'required|string|max:255',
-            'auteur' => 'required|string|max:255',
-            'code_media' => 'required|string|max:255',
-        ]);
+        // $request->validate([
+        //     'user_id' => 'required|integer|exists:users,id',
+        //     'source_id' => 'required|integer|exists:sources,id',
+        //     'thematique_id' => 'required|array',
+        //     'thematique_id.*' => 'integer|exists:thematiques,id',
+        //     'description' => 'nullable|string|max:255',
+        //     'type' => 'required', // Ajoutez ici les valeurs valides pour le champ type
+        //     'statut' => 'boolean',
+        //     'audio' => 'string', // Ajoutez ici les formats de fichier audio autorisés
+        //     'title' => 'required|string|max:255',
+        //     'auteur' => 'required|string|max:255',
+        //     'code_media' => 'required|string|max:255',
+        // ]);
     
         // Mettre à jour le statut
         $statut = $request->has('statut') ? 1 : 0;
     
-        // Mettre à jour le fichier audio si un nouveau fichier est fourni
-        if ($audioFile = $request->file('audio')) {
-            // Supprimer le fichier audio actuel s'il existe
-            if (Storage::disk('public')->exists('audio/' . $audio->audio)) {
-                Storage::disk('public')->delete('audio/' . $audio->audio);
-            }
-    
-            // Enregistrer le nouveau fichier audio
-            $destinationPath = 'audio/';
-            $media = date('YmdHis') . "." . $audioFile->getClientOriginalExtension();
-            $audioFile->move($destinationPath, $media);
-            $audio->audio = $media;
-        }
-    
+
         // Mettre à jour les autres champs du modèle
         $audio->user_id = $request->user_id;
         $audio->source_id = $request->source_id;
@@ -166,4 +152,45 @@ class AudioController extends Controller
         return redirect()->route('audios.index')
             ->with('message', 'Audio supprimée!!!');
     }
+
+    public function desactivate($id){
+        $audio = Media::find($id);
+        $audio->update([
+            'statut'=> 0
+        ]);
+        return back();
+    }
+    public function activate($id){
+        $audio = Media::find($id);
+        $audio->update([
+            'statut'=> 1
+        ]);
+        return back();
+    }
+
+    public function localisationIndex($id){
+        $audio = Media::find($id);
+        return view('audio.localisation', compact('audio'));
+    }
+
+    public function addLocalisation(Request $request){
+       $getLocalisationId = $request->localisation_id;
+       Media::where('id',$getLocalisationId)->update([
+        'localisation'=>$request->localisation
+      ]);
+      return redirect()->route('audios.index')->with('message','Localisation Ajouter !!');
+
+    }
+
+    public function removeLocalisation(Request $request)
+    {
+        $getLocalisationId = $request->localisation_id;
+       Media::where('id',$getLocalisationId)->update([
+        'localisation'=> null
+      ]);
+
+        return redirect()->route('audios.index')
+            ->with('message', 'localisation supprimée!!!');
+    }
+
 }

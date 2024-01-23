@@ -30,30 +30,28 @@
                                                     <input type="hidden" name="type" value="0">
                                                     <label class="form-label">Titre</label>
                                                     <input type="text" name="title" value="{{$audio->title}}" class="form-control ">
-                                                    @error('titre')
-                                                    <h6 class="fw-bold mt-1 text-danger">{{ $message }}
+                                                    @error('title')
+                                                    <h6 class="fw-bold mt-1 text-danger">{{ $message }}</h6>
                                                     @enderror
                                                     <label class="form-label">Auteur</label>
                                                     <input type="text" name="auteur" value="{{$audio->auteur}}" class="form-control ">
                                                     @error('auteur')
-                                                    <h6 class="fw-bold mt-1 text-danger">{{ $message }}
+                                                    <h6 class="fw-bold mt-1 text-danger">{{ $message }}</h6>
                                                     @enderror
                                                     <label class="form-label">Code Média</label>
                                                     <input type="text" name="code_media" value="{{$audio->code_media}}" class="form-control ">
                                                     @error('code_media')
-                                                    <h6 class="fw-bold mt-1 text-danger">{{ $message }}
+                                                    <h6 class="fw-bold mt-1 text-danger">{{ $message }}</h6> 
                                                     @enderror
                                                 <select class="form-select my-2" name="source_id"
                                                     aria-label="Default select example">
                                                     <option selected>Selectionner une source</option>
-                                                    @forelse ($sources as $source)
+                                                    @foreach ($sources as $source)
                                                         <option value="{{ $source->id }}"
                                                             {{ $audio->source_id == $source->id ? 'selected' : '' }}>
                                                             {{ $source->label }}
                                                         </option>
-                                                    @empty
-                                                        <p>Aucune source</p>
-                                                    @endforelse
+                                                    @endforeach
                                                 </select>
 
                                                 <label class="form-label" for="basicSelect">Sélection une thématique</label>
@@ -66,7 +64,7 @@
                                                         </option>
                                                     @endforeach
                                                 </select>
-                                                <h6 class="text-danger fw-bold">
+                                                <h6 class="text-warning fw-bold">
                                                     Maintenir ctrl + clic droit de la souris pour selectionner plusieurs
                                                     thématiques
                                                 </h6>
@@ -79,7 +77,7 @@
                                                 
                                                 <div class="form-floating my-1">
                                                     <label for="floatingTextarea2" class="mt-3">Modifier la description</label>
-                                                    <textarea class="form-control" name="description" placeholder="Leave a comment here" id="floatingTextarea2" style="height: 100px"></textarea>
+                                                    <textarea class="form-control" name="description" placeholder="Leave a comment here" id="floatingTextarea2" style="height: 100px">{{ $audio->description }}</textarea>
                                                 </div>
                                                 
 
@@ -91,7 +89,7 @@
                                                     </label>
                                                 </div>
 
-                                                <button type="submit" class="btn btn-primary mt-2">Valider</button>
+                                                <button type="submit" class="btn btn-primary mt-2 float-end">Valider</button>
                                             </div>
                                         </form>
 

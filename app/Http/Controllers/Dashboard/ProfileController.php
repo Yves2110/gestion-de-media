@@ -3,18 +3,19 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\RegisterRequest;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
 
 class ProfileController extends Controller
 {
+
+    public function profile(){
+        return view('dashboard.profile.profile');
+    }
     public function updateData(Request $request)
     {
-        $data = $request->validate([
+            $request->validate([
             'firstname' => 'required',
             'lastname' => 'required',
             'email' => 'required|email',
@@ -30,7 +31,7 @@ class ProfileController extends Controller
 
     public function updatePassword(Request $request)
     {
-        $password = $request->validate([
+           $request->validate([
             'password'=> 'required|min:6|',
             'confirm_password' => 'required|same:password',
         ]);

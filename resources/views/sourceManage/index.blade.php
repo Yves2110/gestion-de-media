@@ -17,34 +17,25 @@
                     <div class="content-body">
                         <!-- Basic Tables start -->
                         <div class="row" id="basic-table">
-                            <div class="col-6 offset-3">
+                            <div class="col-6">
                                 <div class="card">
                                     <div class="table-responsive">
-                                        @if ($message = Session::get('message'))
-                                            <div class="alert alert-success mt-1 alert-dismissible" role="alert">
-                                                <div class="alert-body d-flex align-items-center">
-                                                    <span>{{ $message }}</span>
-                                                </div>
-                                                <button type="button" class="btn-close" data-bs-dismiss="alert"
-                                                    aria-label="Close"></button>
-                                            </div>
-                                        @endif
-                                        <button class="btn btn-primary float-end m-1"><a href="{{ route('source.create') }}"
-                                                class="text-white">Ajouter une source</a></button>
+                                        {{-- <button class="btn btn-primary float-end m-1"><a href="{{ route('source.create') }}"
+                                                class="text-white">Ajouter une source</a></button> --}}
                                         <table class="table">
                                             <thead>
                                                 <tr>
-                                                    <th>Source</th>
-                                                    <th>Actions</th>
+                                                    <th class="text-center">Source</th>
+                                                    <th class="text-end">Actions</th>
                                                 </tr>
                                             </thead>
                                             @foreach ($sources as $source)
                                                 <tbody>
                                                     <tr>
-                                                        <td>
+                                                        <td class="text-center">
                                                             {{ $source->label }}
                                                         </td>
-                                                        <td class="d-flex">
+                                                        <td class="d-flex float-end">
                                                             <a href="{{ route('source.edit', $source->id) }}">
                                                                 <button type="submit" class="btn btn-success">
                                                                     Editer
@@ -63,6 +54,33 @@
                                                 </tbody>
                                             @endforeach
                                         </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6  card">
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        @if ($message = Session::get('message'))
+                                            <div class="alert alert-success mt-1 alert-dismissible" role="alert">
+                                                <div class="alert-body d-flex align-items-center">
+                                                    <span>{{ $message }}</span>
+                                                </div>
+                                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                                    aria-label="Close"></button>
+                                            </div>
+                                        @endif
+                                        <h6 class="text-uppercase text-center">Formulaire d'ajout d'une source</h6>
+                                        <form action="{{ route('source.store') }}" method="post">
+                                            @csrf
+                                            <div class="">
+                                                <label class="form-label">Source</label>
+                                                <input type="text" name="label" placeholder="Saisir une source" class="form-control ">
+                                                @error('label')
+                                                <h6 class="fw-bold  text-danger">{{ $message }}
+                                                @enderror
+                                            </div>
+                                            <button type="submit" class="btn btn-primary mt-2 float-end">Valider</button>
+                                        </form>
                                     </div>
                                 </div>
                             </div>

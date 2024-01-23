@@ -24,10 +24,10 @@ class SourceController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
-    {
-        return view('sourceManage.create');
-    }
+    // public function create()
+    // {
+    //     return view('sourceManage.create');
+    // }
 
     /**
      * Store a newly created resource in storage.
@@ -41,7 +41,7 @@ class SourceController extends Controller
             'label' => 'required|string'
         ]);
         Source::create($source);
-        return redirect()->route('source.index')->with('message', 'La source à été ajouté !!!');
+        return back()->with('message', 'La source à été ajouté !!!');
     }
 
     /**

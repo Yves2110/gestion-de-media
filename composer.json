@@ -11,7 +11,8 @@
         "laravel/framework": "^9.0",
         "laravel/sanctum": "^3.0",
         "laravel/tinker": "^2.7",
-        "twilio/sdk": "^6.44"
+        "twilio/sdk": "^6.44",
+        "laravel/http":"^9.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",

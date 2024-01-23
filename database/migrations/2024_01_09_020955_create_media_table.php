@@ -19,11 +19,12 @@ return new class extends Migration
             $table->foreignId('source_id')->constrained();
             $table->string('thematique_id');
             $table->string('title');
-            $table->longText('description');
+            $table->longText('description')->nullable();
             $table->string('auteur');
             $table->string('code_media')->nullable();
-            $table->boolean('statut')->default(1);
+            $table->boolean('statut')->default(0);
             $table->longText('media')->nullable();
+            $table->longText('localisation')->nullable();
             $table->boolean('type'); // 0 represente un audio et 1 represente une video
             $table->timestamps();
         });
