@@ -1,95 +1,72 @@
 @extends('layouts.dashboard')
+@section('title', 'Gestion utilisateurs')
 @section('dashboard_content')
+@include('dashboard.components.nav')
+<div class="admin-layout-wrapper">
+@include('dashboard.components.sidebar')
 
-   @include('dashboard.components.nav')
-
-  @include('dashboard.components.menu');
-    <!-- END: Main Menu-->
-
-    <!-- BEGIN: Content-->
-    <div class="app-content content ">
-        <div class="content-overlay"></div>
-        <div class="header-navbar-shadow"></div>
-        <div class="content-wrapper container-xxl p-0">
-            <div class="content-header row">
-            </div>
-            <div class="content-body">
-                <!-- Dashboard Ecommerce Starts -->
-                <section id="dashboard-ecommerce">
-                    <div class="content-body">
-                        <!-- Basic Tables start -->
-                        <div class="row" id="basic-table">
-                            <div class="col-10 offset-1">
-                                <div class="card">
-                                    
-                                    <div class="table-responsive">
-                                        <button class="btn btn-primary float-end m-1"><a href="{{route('addAdmin')}}" class="text-white">Ajouter un administrateur</a></button>
-                                        <table class="table">
-                                            <thead>
-                                                <tr>
-                                                    <th>Noms</th>
-                                                    <th>Prénom(s)</th>
-                                                    <th>Emails</th>
-                                                    <th>Rôle</th>
-                                                    <th>Actions</th>
-                                                </tr>
-                                            </thead>
-                                            @foreach ($admins as $admin)
-                                            <tbody>
-                                                <tr>
-                                                    <td>
-                                                     {{$admin->firstname}}
-                                                    </td>
-                                                    <td>
-                                                        {{$admin->lastname}}
-                                                       </td>
-                                                    <td>
-                                                        {{$admin->email}}
-                                                    </td>
-                                                    <td>
-                                                        {{$admin->role->label}}</td>
-                                                   <td>
-                                                    @if ($admin->statut === 1)
-                                                    <a href="{{ route('desactivate',$admin->id) }}">
-                                                        <button type="submit" class="btn btn-warning">
-                                                            Désactiver
-                                                        </button>
-                                                    </a>
-                                                    @else
-                                                    <a href="{{ route('activate',$admin->id) }}">
-                                                         <button type="submit" class="btn btn-success">
-                                                             Activer
-                                                         </button>
-                                                     </a>
-                                                    @endif
-                                                    <a href="{{ route('removeManager',$admin->id) }}">
-                                                        <button type="submit" class="btn btn-danger">
-                                                            Supprimer
-                                                        </button>
-                                                       </a>
-                                                   </td>
-                                                </tr>
-                                            </tbody>
-                                            @endforeach
-                                        </table>
-                                    </div>
-                                </div>
-                                {{ $admins->links() }}
-                            </div>
-                        </div>
-                        <!-- Basic Tables end -->
-
-                </section>
-            
-
+<div class="app-content content admin-main-content">
+    <div class="content-wrapper container-xxl p-0">
+        <div class="content-body">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between">
+                    <h4>Administrateurs</h4>
+                    <a href="{{ route('addAdmin') }}" class="btn btn-primary">Ajouter un administrateur</a>
+                </div>
+                <div class="card-body">
+                    @if ($success = Session::get('success'))
+                        <div class="alert alert-success">{{ $success }}</div>
+                    @endif
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Prénom</th>
+                                <th>Nom</th>
+                                <th>Email</th>
+                                <th>Rôle</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($admins as $admin)
+                            <tr>
+                                <td>{{ $admin->firstname }}</td>
+                                <td>{{ $admin->lastname }}</td>
+                                <td>{{ $admin->email }}</td>
+                                <td>{{ $admin->role->label }}</td>
+                                <td>{{ $admin->statut ? 'Actif' : 'Inactif' }}</td>
+                                <td class="d-flex gap-1">
+                                    <a href="{{ route('userManage.edit', $admin) }}" class="btn btn-sm btn-primary">Éditer</a>
+                                    @if ($admin->id !== Auth::id())
+                                        @if ($admin->statut)
+                                            <form action="{{ route('desactivate', $admin->id) }}" method="POST">
+                                                @csrf
+                                                <button type="submit" class="btn btn-sm btn-warning">Désactiver</button>
+                                            </form>
+                                        @else
+                                            <form action="{{ route('activate', $admin->id) }}" method="POST">
+                                                @csrf
+                                                <button type="submit" class="btn btn-sm btn-success">Activer</button>
+                                            </form>
+                                        @endif
+                                        <form action="{{ route('removeManager', $admin->id) }}" method="POST" onsubmit="return confirm('Supprimer cet utilisateur ?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-danger">Supprimer</button>
+                                        </form>
+                                    @endif
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                    {{ $admins->links() }}
+                </div>
             </div>
         </div>
     </div>
-    <!-- END: Content-->
-
-    <div class="sidenav-overlay"></div>
-    <div class="drag-target"></div>
-
-    <!-- BEGIN: Footer-->
-    @include('dashboard.components.footer')
+</div>
+</div>
+@include('dashboard.components.footer')
 @endsection

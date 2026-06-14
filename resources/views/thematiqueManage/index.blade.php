@@ -1,11 +1,12 @@
 @extends('layouts.dashboard')
 @section('dashboard_content')
     @include('dashboard.components.nav')
-    @include('dashboard.components.menu');
+<div class="admin-layout-wrapper">
+@include('dashboard.components.sidebar')
     <!-- END: Main Menu-->
 
     <!-- BEGIN: Content-->
-    <div class="app-content content ">
+    <div class="app-content content admin-main-content">
         <div class="content-overlay"></div>
         <div class="header-navbar-shadow"></div>
         <div class="content-wrapper container-xxl p-0">
@@ -29,8 +30,8 @@
                                                     <th class="text-end">Actions</th>
                                                 </tr>
                                             </thead>
-                                            @foreach ($thematiques as $thematique)
-                                                <tbody>
+                                            <tbody>
+                                            @forelse ($thematiques as $thematique)
                                                     <tr>
                                                         <td class="text-center">
                                                             {{ $thematique->label }}
@@ -51,8 +52,19 @@
                                                             </form>
                                                         </td>
                                                     </tr>
-                                                </tbody>
-                                            @endforeach
+                                            @empty
+                                                <tr>
+                                                    <td colspan="2">
+                                                        @include('components.empty-state', [
+                                                            'title' => 'Aucune thématique',
+                                                            'message' => 'Créez des thématiques pour classer vos médias.',
+                                                            'actionUrl' => route('thematique.create'),
+                                                            'actionLabel' => 'Ajouter une thématique',
+                                                        ])
+                                                    </td>
+                                                </tr>
+                                            @endforelse
+                                            </tbody>
                                         </table>
                                     </div>
                                 </div>
@@ -98,6 +110,7 @@
 
     <div class="sidenav-overlay"></div>
     <div class="drag-target"></div>
-    @include('dashboard.components.footer')
+    </div>
+@include('dashboard.components.footer')
     </body>
 @endsection

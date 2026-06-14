@@ -1,45 +1,32 @@
-@extends('layouts.main')
-@section('content')
-    <div class="row my-5 ">
-        <div class="card offset-4 col-md-4 p-2">
-            <div class="card-header">
-                <h4 class="text-center font-weight-bold text-uppercase">
-                    CONNEXION
-                </h4>
-            </div>
-            @if ($message = Session::get('message'))
-                <div class="alert alert-danger mt-1 alert-dismissible" role="alert">
-                    <div class="alert-body d-flex align-items-center">
-                        <span>{{ $message }}</span>
-                    </div>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            @endif
-            <form action="{{ route('login') }}" method="post">
-                @csrf
-                <div class="mb-1">
-                    <label class="form-label">Email</label>
-                    <input type="email" class="form-control" name="email" value="{{ old('email') }}"
-                        placeholder="john.doe@email.com" />
-                    @error('email')
-                        <h6 class="fw-bold mt-1 text-danger">{{ $message }}
-                        @enderror
-                </div>
-                <div class="mb-1">
-                    <div class="d-flex justify-content-between">
-                        <label class="form-label">Mot de passe</label>
-                        <a href="{{route('forget.password.get')}}">
-                            <small>Mot de passe oublié?</small>
-                        </a>
-                    </div>
-                    <input type="password" class="form-control" name="password"
-                        placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;" />
-                    @error('password')
-                        <h6 class="fw-bold mt-1 text-danger">{{ $message }}
-                        @enderror
-                </div>
-                <button type="submit" class="btn btn-primary">Se connecter</button>
-            </form>
-        </div>
+@extends('layouts.auth')
+@section('title', 'Connexion')
+@section('auth_card_class', 'auth-form-card-compact')
+
+@section('auth_content')
+<x-auth-form-brand title="Connexion" subtitle="Accédez à votre espace membre" />
+@include('components.flash-messages')
+<form action="{{ route('login.attempt') }}" method="post">
+    @csrf
+    <div class="mb-2">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-control form-control-sm" name="email" value="{{ old('email') }}" placeholder="votre@email.com" required>
+        @error('email')
+            <small class="text-danger">{{ $message }}</small>
+        @enderror
     </div>
+    <div class="mb-2">
+        <div class="d-flex justify-content-between align-items-center">
+            <label class="form-label mb-0">Mot de passe</label>
+            <a href="{{ route('forget.password.get') }}" class="small">Oublié ?</a>
+        </div>
+        <input type="password" class="form-control form-control-sm" name="password" required>
+        @error('password')
+            <small class="text-danger">{{ $message }}</small>
+        @enderror
+    </div>
+    <button type="submit" class="btn btn-primary btn-sm w-100 auth-submit-btn">Se connecter</button>
+</form>
+<div class="auth-form-footer text-center">
+    <small class="text-muted">Pas de compte ? <a href="{{ route('register') }}">Créer un compte</a> | <a href="{{ route('home') }}">Accueil</a></small>
+</div>
 @endsection

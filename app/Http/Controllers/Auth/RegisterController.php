@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Events\RegistrationRequested;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RegisterAdminRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Models\User;
-use App\Providers\AdminAdded;
-use Illuminate\Support\Str;
+use App\Events\AdminAdded;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 
 class RegisterController extends Controller
 {
@@ -18,48 +19,49 @@ class RegisterController extends Controller
     {
         return view('Auth.register');
     }
+
     public function registration(RegisterRequest $request)
     {
-   
         $user = User::create([
             'firstname' => $request->firstname,
             'lastname' => $request->lastname,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role_id' => 3,
-            'uuid' => Str::uuid(),
-            'statut'=> 1
+            'uuid' => (string) Str::uuid(),
+            'statut' => 0,
         ]);
 
-        $user->notify(new \App\Notifications\WelcomeMailNotification($user));
+        event(new RegistrationRequested($user));
 
-        return back()->with('success', 'Votre inscription à été effectué avec succcès!!! Connectez vous');
+        return redirect()->route('login')->with('success', 'Inscription enregistrée. Un administrateur validera votre compte avant connexion.');
     }
+
     public function indexAdmin()
     {
+        Gate::authorize('manage-admins');
+
         return view('Auth.registerAdmin');
     }
+
     public function registrationAdmin(RegisterAdminRequest $request)
     {
-        $request->validate([
-            'firstname' => 'bail|required|string|min:2',
-            'lastname' => 'bail|required|string|min:2',
-            'email' => 'bail|required|email|unique:users',
-        ]);
+        Gate::authorize('manage-admins');
 
-    
-        $password = substr(str_shuffle(Hash::make(Str::random(10))), 0, 15);
+        $password = Str::random(12);
 
         $userAdmin = User::create([
             'firstname' => $request->firstname,
             'lastname' => $request->lastname,
             'email' => $request->email,
-            'password' =>   $input['password'] = Hash::make($password),
+            'password' => Hash::make($password),
             'role_id' => 2,
-            'uuid' => Str::random(30),
-            'statut'=> 1
+            'uuid' => (string) Str::uuid(),
+            'statut' => 1,
         ]);
+
         event(new AdminAdded($userAdmin, $password));
-        return back()->with('message','Ajout de l\'admnistrateur avec succès');
+
+        return back()->with('message', 'Administrateur ajouté avec succès');
     }
 }

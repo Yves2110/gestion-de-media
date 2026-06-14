@@ -1,52 +1,78 @@
 @extends('layouts.dashboard')
+@section('title', 'Audio | ' . $audio->title)
 @section('dashboard_content')
-    @include('dashboard.components.nav')
-    @include('dashboard.components.menu');
-    <!-- END: Main Menu-->
+@include('dashboard.components.nav')
+<div class="admin-layout-wrapper">
+@include('dashboard.components.sidebar')
 
-    <!-- BEGIN: Content-->
-    <div class="app-content content ">
-        <div class="content-overlay"></div>
-        <div class="header-navbar-shadow"></div>
-        <div class="content-wrapper container-xxl p-0">
-            <div class="content-header row">
-            </div>
-            <div class="content-body">
-                <!-- Dashboard Ecommerce Starts -->
-                <section id="dashboard-ecommerce">
-                    <div class="content-body">
-                        <!-- Basic Tables start -->
-                        <div class="row" id="basic-table">
-                            <div class="col-md-6 offset-3">
-                                <div class="card">
-                                    <div class="card-body">
-                                        {!! $audio->localisation !!}
-                                    </div>
-                                   <div class="d-flex  m-2">
-                                    <a href="{{route('audioLocalisation',$audio->id)}}}}">
-                                        <button type="submit" class="btn btn-success">Changer de carte</button>
-                                    </a>
-                                    <form action="{{route('destroyLocalisation',$audio->id)}}">
-                                        <input type="hidden" name="localisation_id" value="{{$audio->id}}">
-                                    <a href="{{ route('destroyLocalisation',$audio->id) }}" class="mx-2">
-                                        <button type="submit" class="btn btn-danger">Retirer</button>
-                                    </a>
-                                </form>
-                                   </div>
-                                </div>
-                            </div>
+<div class="app-content content admin-main-content">
+    <div class="content-wrapper container-xxl p-0">
+        <div class="content-body">
+            @include('components.flash-messages')
+            <div class="card">
+                <div class="card-header"><h4 class="mb-0">{{ $audio->title }}</h4></div>
+                <div class="card-body">
+                    @include('components.admin-content-actions', [
+                        'item' => $audio,
+                        'isPublished' => (bool) $audio->statut,
+                        'previewUrl' => route('public.audios.show', $audio->id),
+                        'editUrl' => route('audios.edit', $audio->id),
+                        'destroyUrl' => route('audios.destroy', $audio->id),
+                        'activateUrl' => route('audios.activate', $audio->id),
+                        'deactivateUrl' => route('audios.desactivate', $audio->id),
+                        'reportUrl' => route('audios.report', $audio->id),
+                        'backUrl' => route('audios.index'),
+                        'modalId' => 'reportAudio' . $audio->id,
+                        'localisationUrl' => $audio->localisation ? null : route('audios.localisation', $audio->id),
+                        'localisationDestroyUrl' => $audio->localisation ? route('audios.localisation.destroy', $audio->id) : null,
+                    ])
+
+                    <div class="row g-2 document-read-meta mb-3">
+                        <div class="col-sm-6"><p class="mb-0"><strong>Auteur :</strong> {{ $audio->auteur }}</p></div>
+                        <div class="col-sm-6"><p class="mb-0"><strong>Source :</strong> {{ $audio->source->label ?? 'Non renseignée' }}</p></div>
+                        <div class="col-sm-6"><p class="mb-0"><strong>Vues catalogue :</strong> {{ $viewCount ?? 0 }}</p></div>
+                        <div class="col-sm-6">
+                            <p class="mb-0"><strong>Statut :</strong>
+                                @if ($audio->statut)
+                                    <span class="badge bg-success">Publié</span>
+                                @else
+                                    <span class="badge bg-secondary">Brouillon</span>
+                                @endif
+                            </p>
                         </div>
-                        <!-- Basic Tables end -->
+                    </div>
 
-                </section>
+                    @if ($audio->description)
+                        <div class="mb-3">
+                            <h6>Description</h6>
+                            <p class="document-read-description mb-0">{{ $audio->description }}</p>
+                        </div>
+                    @endif
 
+                    <div class="mb-3">
+                        <h6>Lecteur</h6>
+                        <div class="p-3 bg-light rounded"><x-safe-media :content="$audio->media" /></div>
+                    </div>
 
+                    @if ($audio->localisation)
+                        <div class="mb-0">
+                            <h6>Localisation</h6>
+                            <x-safe-localisation :content="$audio->localisation" />
+                        </div>
+                    @endif
+                </div>
             </div>
         </div>
     </div>
-
-    <div class="sidenav-overlay"></div>
-    <div class="drag-target"></div>
-    @include('dashboard.components.footer')
-    </body>
+</div>
+</div>
+@include('dashboard.components.footer')
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        if (typeof feather !== 'undefined') feather.replace({ width: 14, height: 14 });
+    });
+</script>
+@endpush

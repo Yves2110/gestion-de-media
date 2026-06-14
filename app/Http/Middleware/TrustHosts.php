@@ -13,8 +13,11 @@ class TrustHosts extends Middleware
      */
     public function hosts()
     {
-        return [
+        return array_filter([
             $this->allSubdomainsOfApplicationUrl(),
-        ];
+            parse_url((string) config('app.url'), PHP_URL_HOST),
+            'localhost',
+            '127.0.0.1',
+        ]);
     }
 }

@@ -1,8 +1,9 @@
 @extends('layouts.dashboard')
 @section('dashboard_content')
     @include('dashboard.components.nav')
-    @include('dashboard.components.menu');
-    <div class="app-content content ">
+<div class="admin-layout-wrapper">
+@include('dashboard.components.sidebar')
+    <div class="app-content content admin-main-content">
         <div class="content-overlay"></div>
         <div class="header-navbar-shadow"></div>
         <div class="row">
@@ -66,21 +67,23 @@
                             @csrf
                             <div class="row">
                                 <div class="col-12 col-sm-6 mb-1">
-                                    <label class="form-label">Nouveau mot de passe </label>
-                                    <input type="password" class="form-control" name="password" />
-                                    <div class="text-warning fw-bold">Nb :Le mot de passe doit contenir au moin une
-                                        majuscule,8
-                                        caractères et des chiffres</div>
-                                    @error('password')
-                                        <h6 class="fw-bold mt-1 text-danger">{{ $message }}
-                                        @enderror
+                                    <label class="form-label">Mot de passe actuel</label>
+                                    <input type="password" class="form-control" name="current_password" required />
+                                    @error('current_password')
+                                        <h6 class="fw-bold mt-1 text-danger">{{ $message }}</h6>
+                                    @enderror
                                 </div>
                                 <div class="col-12 col-sm-6 mb-1">
-                                    <label class="form-label">Confirmer Mot de passe</label>
-                                    <input type="password" class="form-control" name="confirm_password" />
-                                    @error('confirm_password')
-                                        <h6 class="fw-bold mt-1 text-danger">{{ $message }}
-                                        @enderror
+                                    <label class="form-label">Nouveau mot de passe</label>
+                                    <input type="password" class="form-control" name="password" required />
+                                    <div class="text-muted small mt-1">8 caractères minimum, majuscule, minuscule et chiffre.</div>
+                                    @error('password')
+                                        <h6 class="fw-bold mt-1 text-danger">{{ $message }}</h6>
+                                    @enderror
+                                </div>
+                                <div class="col-12 col-sm-6 mb-1">
+                                    <label class="form-label">Confirmer le mot de passe</label>
+                                    <input type="password" class="form-control" name="password_confirmation" required />
                                 </div>
                                 <div class="col-12">
                                     <button type="submit" class="btn btn-primary mt-1 me-1">Modifier</button>

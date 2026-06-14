@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34495e"/>
+      <stop offset="100%" stop-color="#2c3e50"/>
+    </linearGradient>
+    <pattern id="books" width="120" height="120" patternUnits="userSpaceOnUse">
+      <rect width="120" height="120" fill="none"/>
+      <path d="M20 88V32c0-4 3-7 7-7h18v70H27c-4 0-7-3-7-7zm34 0V25h18c4 0 7 3 7 7v56H54zm34 0V32c0-4 3-7 7-7h18v70H88c-4 0-7-3-7-7z" fill="#ffffff" opacity="0.06"/>
+    </pattern>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <rect width="1600" height="900" fill="url(#books)"/>
+  <circle cx="200" cy="150" r="180" fill="#eb3349" opacity="0.08"/>
+  <circle cx="1400" cy="700" r="220" fill="#e67e22" opacity="0.07"/>
+</svg>

@@ -4,193 +4,176 @@ namespace App\Http\Controllers\Media;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\MediaRequest;
-use App\Models\Audio;
+use App\Models\ContentView;
 use App\Models\Media;
+use App\Models\MediaReport;
 use App\Models\Source;
 use App\Models\Thematique;
+use App\Support\MediaCodeGenerator;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 class AudioController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
+    public function index(Request $request)
     {
-        $audios = Media::IsAudio()->IdDescending()->paginate(4);
-        return view('audio.index',compact('audios'));
+        $query = Media::isAudio()->idDescending();
+
+        if ($request->get('status') === 'published') {
+            $query->where('statut', 1);
+        } elseif ($request->get('status') === 'draft') {
+            $query->where('statut', 0);
+        }
+
+        $audios = $query->paginate(10)->withQueryString();
+
+        return view('audio.index', compact('audios'));
     }
 
-
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function create()
     {
         $sources = Source::all();
         $thematiques = Thematique::all();
-        return view('audio.create',compact('sources','thematiques'));
+
+        return view('audio.create', compact('sources', 'thematiques'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(MediaRequest $request)
     {
-     
         $statut = $request->has('statut') ? 1 : 0;
 
-    Media::create([
-        'user_id'=>$request->user_id,
-        'thematique_id'=>json_encode($request->thematique_id),
-        'source_id'=>$request->source_id,
-        'description'=>$request->description,
-        'type'=>$request->type,
-        'statut'=>$statut,
-        'media'=>$request->media,
-        'title'=>$request->title,
-        'auteur'=>$request->auteur,
-        'code_media'=>$request->code_media,
-    ]);
-    return redirect()->route('audios.index')->with('message','Enregistrement effectué avec succès');
+        $audio = Media::create([
+            'user_id' => Auth::id(),
+            'thematique_id' => json_encode($request->thematique_id),
+            'source_id' => $request->source_id,
+            'description' => $request->description,
+            'type' => 0,
+            'statut' => $statut,
+            'media' => $request->media,
+            'title' => $request->title,
+            'auteur' => $request->auteur,
+            'code_media' => MediaCodeGenerator::generate(0),
+        ]);
+
+        return redirect()
+            ->route('public.audios.show', $audio)
+            ->with('message', 'Audio enregistré. Voici l\'aperçu tel qu\'il apparaîtra au public.');
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function show(Media $audio)
     {
-        return view('audio.show', compact('audio'));
+        $viewCount = ContentView::where('viewable_type', Media::class)
+            ->where('viewable_id', $audio->id)
+            ->where('action', 'view')
+            ->count();
+
+        return view('audio.show', compact('audio', 'viewCount'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function edit($id)
     {
-        $audio = Media::find($id);
+        $audio = Media::findOrFail($id);
         $sources = Source::all();
         $thematiques = Thematique::all();
-        return view('audio.edit',compact('sources','thematiques','audio'));
+
+        return view('audio.edit', compact('sources', 'thematiques', 'audio'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-   
-    
     public function update(MediaRequest $request, $id)
     {
         $audio = Media::findOrFail($id);
-    
-        // $request->validate([
-        //     'user_id' => 'required|integer|exists:users,id',
-        //     'source_id' => 'required|integer|exists:sources,id',
-        //     'thematique_id' => 'required|array',
-        //     'thematique_id.*' => 'integer|exists:thematiques,id',
-        //     'description' => 'nullable|string|max:255',
-        //     'type' => 'required', // Ajoutez ici les valeurs valides pour le champ type
-        //     'statut' => 'boolean',
-        //     'audio' => 'string', // Ajoutez ici les formats de fichier audio autorisés
-        //     'title' => 'required|string|max:255',
-        //     'auteur' => 'required|string|max:255',
-        //     'code_media' => 'required|string|max:255',
-        // ]);
-    
-        // Mettre à jour le statut
         $statut = $request->has('statut') ? 1 : 0;
-    
 
-        // Mettre à jour les autres champs du modèle
-        $audio->user_id = $request->user_id;
-        $audio->source_id = $request->source_id;
-        $audio->thematique_id = json_encode($request->thematique_id);
-        $audio->description = $request->description;
-        $audio->type = $request->type;
-        $audio->statut = $statut;
-        $audio->title = $request->title;
-        $audio->auteur = $request->auteur;
-        $audio->code_media = $request->code_media;
-    
-        // Enregistrer les modifications dans la base de données
-        $audio->save();
-    
-        return redirect()->route('audios.index')->with('message', 'Mise à jour effectuée avec succès');
+        $audio->update([
+            'user_id' => Auth::id(),
+            'source_id' => $request->source_id,
+            'thematique_id' => json_encode($request->thematique_id),
+            'description' => $request->description,
+            'type' => 0,
+            'statut' => $statut,
+            'media' => $request->media,
+            'title' => $request->title,
+            'auteur' => $request->auteur,
+        ]);
+
+        if (! $audio->code_media) {
+            $audio->update(['code_media' => MediaCodeGenerator::generate(0)]);
+        }
+
+        return redirect()
+            ->route('public.audios.show', $audio)
+            ->with('message', 'Audio mis à jour. Voici l\'aperçu public.');
     }
-    
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        $audio = Media::find($id);
-        $audio->delete();
+        Media::findOrFail($id)->delete();
 
-        return redirect()->route('audios.index')
-            ->with('message', 'Audio supprimée!!!');
+        if ($request->input('redirect') === 'public') {
+            return redirect()->route('home')->with('success', 'Audio supprimé.');
+        }
+
+        return redirect()->route('audios.index')->with('message', 'Audio supprimé');
     }
 
-    public function desactivate($id){
-        $audio = Media::find($id);
-        $audio->update([
-            'statut'=> 0
-        ]);
-        return back();
-    }
-    public function activate($id){
-        $audio = Media::find($id);
-        $audio->update([
-            'statut'=> 1
-        ]);
+    public function desactivate($id)
+    {
+        Media::findOrFail($id)->update(['statut' => 0]);
+
         return back();
     }
 
-    public function localisationIndex($id){
-        $audio = Media::find($id);
+    public function activate($id)
+    {
+        Media::findOrFail($id)->update(['statut' => 1]);
+
+        return back();
+    }
+
+    public function localisationIndex($id)
+    {
+        $audio = Media::findOrFail($id);
+
         return view('audio.localisation', compact('audio'));
     }
 
-    public function addLocalisation(Request $request){
-       $getLocalisationId = $request->localisation_id;
-       Media::where('id',$getLocalisationId)->update([
-        'localisation'=>$request->localisation
-      ]);
-      return redirect()->route('audios.index')->with('message','Localisation Ajouter !!');
-
-    }
-
-    public function removeLocalisation(Request $request)
+    public function addLocalisation(Request $request)
     {
-        $getLocalisationId = $request->localisation_id;
-       Media::where('id',$getLocalisationId)->update([
-        'localisation'=> null
-      ]);
+        $request->validate([
+            'localisation_id' => 'required|integer|exists:media,id',
+            'localisation' => 'required|string',
+        ]);
 
-        return redirect()->route('audios.index')
-            ->with('message', 'localisation supprimée!!!');
+        Media::where('id', $request->localisation_id)->update([
+            'localisation' => $request->localisation,
+        ]);
+
+        return redirect()->route('audios.index')->with('message', 'Localisation ajoutée');
     }
 
+    public function removeLocalisation($id)
+    {
+        Media::findOrFail($id)->update(['localisation' => null]);
+
+        return redirect()->route('audios.index')->with('message', 'Localisation supprimée');
+    }
+
+    public function report(Request $request, $id)
+    {
+        $audio = Media::findOrFail($id);
+
+        $request->validate([
+            'message' => 'required|string|min:10|max:2000',
+        ]);
+
+        MediaReport::create([
+            'media_id' => $audio->id,
+            'user_id' => Auth::id(),
+            'reporter_name' => Auth::user()->firstname . ' ' . Auth::user()->lastname,
+            'reporter_email' => Auth::user()->email,
+            'message' => $request->message,
+        ]);
+
+        return back()->with('success', 'Signalement enregistré.');
+    }
 }

@@ -1,11 +1,12 @@
 @extends('layouts.dashboard')
 @section('dashboard_content')
     @include('dashboard.components.nav')
-    @include('dashboard.components.menu');
+<div class="admin-layout-wrapper">
+@include('dashboard.components.sidebar')
     <!-- END: Main Menu-->
 
     <!-- BEGIN: Content-->
-    <div class="app-content content ">
+    <div class="app-content content admin-main-content">
         <div class="content-overlay"></div>
         <div class="header-navbar-shadow"></div>
         <div class="content-wrapper container-xxl p-0">
@@ -32,6 +33,10 @@
                                                 </div>
                                             @endif
                                             <h6 class="text-uppercase text-center mb-2">Formulaire de modification d'un document</h6>
+                                            <div class="alert alert-light border small mb-3">
+                                                Champs affichés sur la carte : <strong>couverture, titre, auteur, source, résumé</strong>.
+                                                Le PDF alimente le bouton Télécharger ; la page Lire est publique si publié.
+                                            </div>
                                             <form action="{{ route('documents.update',$document->id) }}" method="post" enctype="multipart/form-data">
                                                 @csrf
                                                 @method('PUT')
@@ -62,8 +67,13 @@
                                                         @enderror
 
                                                         <label class="form-label mt2">Catégorie</label>
-                                                        <input type="text" value="{{$document->categorie}}"  name="categorie" class="form-control ">
-                                                        @error('categorie')
+                                                        <select class="form-select" name="category_id" required>
+                                                            <option value="">Choisir une catégorie</option>
+                                                            @foreach ($categories as $category)
+                                                                <option value="{{ $category->id }}" @selected(old('category_id', $document->category_id) == $category->id)>{{ $category->label }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                        @error('category_id')
                                                         <h6 class="fw-bold mt-1 text-danger">{{ $message }} </h6>
                                                         @enderror
 
@@ -85,7 +95,7 @@
                                                           <div class="my-2">
                                                             <label for="formFile" class="form-label">Image du document</label>
                                                             <input class="form-control my-1"  name="picture" type="file" id="formFile">
-                                                            <img src="{{ asset('picture/' . $document->picture) }}" width="75px" height="75px">
+                                                            <img src="{{ asset('storage/picture/' . $document->picture) }}" width="75px" height="75px">
                                                             @error('picture')
                                                             <h6 class="fw-bold mt-1 text-danger">{{ $message }} </h6>
                                                             @enderror
@@ -114,30 +124,24 @@
                                                                 <p>Aucune source</p>
                                                             @endforelse
                                                           </select>
-                                                          <label class="form-label" for="basicSelect">Sélection une thématique</label> 
-                                                          <select class="form-select" name="thematique_id[]" multiple aria-label="multiple select example">
-                                                            <option >Open this select menu</option>
-                                                            @foreach ($thematiques as $thematique)
-                                                            <option value="{{ $thematique->id }}"
-                                                                @if (in_array($thematique, $document->custom)) selected @endif>
-                                                                {{ $thematique->label }}
-                                                            </option>
-                                                            @endforeach
-                                                          </select>
-                                                          <h6 class="text-danger fw-bold mt-1">Maintenir ctrl + clic droit de la souris pour selectionner plusieurs thémaques</h6>
+                                                          <label class="form-label">Thématiques</label>
+                                                          <x-thematique-checkboxes
+                                                              :thematiques="$thematiques"
+                                                              :selected="array_map('intval', old('thematique_id', collect($document->custom)->pluck('id')->all()))"
+                                                          />
                                                           <div class="form-floating my-1">
-                                                            <textarea class="form-control" name="resume"  placeholder="Leave a comment here" id="floatingTextarea2" style="height: 100px">{{$document->resume}}</textarea>
+                                                            <textarea class="form-control" name="resume" placeholder="Description complète (minimum 250 mots)..." id="floatingTextarea2" style="height: 180px">{{$document->resume}}</textarea>
                                                             @error('resume')
                                                             <h6 class="fw-bold mt-1 text-danger">{{ $message }}
                                                             @enderror
-                                                            <label for="floatingTextarea2">Resumé</label>
+                                                            <label for="floatingTextarea2">Description <span class="text-muted small">(min. 250 mots, page Lire)</span></label>
                                                           </div>
     
                                                           <div class="form-check mt-2">
-                                                            <input class="form-check-input" type="checkbox" name="statut_publication"
-                                                            {{ $document->statut_publication == 1 ? 'checked' : '' }}>   
-                                                            <label class="form-check-label" for="flexCheckDefault">
-                                                                Demande de publication
+                                                            <input class="form-check-input" type="checkbox" name="statut_publication" id="statut_publication_edit"
+                                                            {{ $document->statut_publication == 1 ? 'checked' : '' }}>
+                                                            <label class="form-check-label" for="statut_publication_edit">
+                                                              Publier sur la page d'accueil (visible par tous, sans connexion)
                                                             </label>
                                                           </div>
                                                           <div class="form-check mt-1">
@@ -163,6 +167,7 @@
 
     <div class="sidenav-overlay"></div>
     <div class="drag-target"></div>
-    @include('dashboard.components.footer')
+    </div>
+@include('dashboard.components.footer')
     </body>
 @endsection

@@ -3,49 +3,48 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Password;
 
 class RegisterRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
     public function authorize()
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, mixed>
-     */
     public function rules()
     {
         return [
-            'firstname'=>'bail|required|string|min:2',
-            'lastname'=>'bail|required|string|min:2',
-            'email'=>'bail|required|email|unique:users',
-            'password'=>'required|min:6',
-            'confirm_password'=>'required|same:password|'
+            'firstname' => 'bail|required|string|min:2|max:120',
+            'lastname' => 'bail|required|string|min:2|max:120',
+            'email' => 'bail|required|email|max:190|unique:users',
+            'password' => ['required', Password::defaults()],
+            'confirm_password' => 'required|same:password',
         ];
     }
-    /**
- * Get the error messages for the defined validation rules.
- *
- * @return array
- */
-public function messages()
-{
-    return [
-        'required' => 'Veuillez remplir obligatoirement ce champ',
-        'min' => 'Veuillez renseigner au plus 2 caractères',
-        'email'=>'Ce champ ne correspond pas à un email valide',
-        'email.unique'=>'Cet email est déjà utilisé',
-        'password.min'=>'Le mot de passe doit comporter au minimun 6 caractères',
-        
-    ];
-}
 
+    public function attributes(): array
+    {
+        return [
+            'firstname' => 'nom',
+            'lastname' => 'prénom',
+            'email' => 'adresse e-mail',
+            'password' => 'mot de passe',
+            'confirm_password' => 'confirmation du mot de passe',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'required' => 'Le champ :attribute est obligatoire.',
+            'min.string' => 'Le champ :attribute doit contenir au moins :min caractères.',
+            'max.string' => 'Le champ :attribute ne doit pas dépasser :max caractères.',
+            'email' => 'L\'adresse e-mail saisie n\'est pas valide.',
+            'email.unique' => 'Cette adresse e-mail est déjà utilisée. Connectez-vous ou utilisez une autre adresse.',
+            'password.required' => 'Choisissez un mot de passe.',
+            'confirm_password.required' => 'Confirmez votre mot de passe.',
+            'confirm_password.same' => 'La confirmation ne correspond pas au mot de passe.',
+        ];
+    }
 }

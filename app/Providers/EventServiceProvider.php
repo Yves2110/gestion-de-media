@@ -2,6 +2,12 @@
 
 namespace App\Providers;
 
+use App\Events\AdminAdded;
+use App\Events\RegistrationApproved;
+use App\Events\RegistrationRequested;
+use App\Listeners\NotifyAdminsOfRegistration;
+use App\Listeners\SendAdminCredentials;
+use App\Listeners\SendRegistrationApprovedMail;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -19,6 +25,8 @@ class EventServiceProvider extends ServiceProvider
             SendEmailVerificationNotification::class,
         ],
         AdminAdded::class => [SendAdminCredentials::class],
+        RegistrationRequested::class => [NotifyAdminsOfRegistration::class],
+        RegistrationApproved::class => [SendRegistrationApprovedMail::class],
     ];
 
     /**

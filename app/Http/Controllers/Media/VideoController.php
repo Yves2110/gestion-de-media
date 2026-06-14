@@ -4,195 +4,176 @@ namespace App\Http\Controllers\Media;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\MediaRequest;
+use App\Models\ContentView;
 use App\Models\Media;
+use App\Models\MediaReport;
 use App\Models\Source;
 use App\Models\Thematique;
+use App\Support\MediaCodeGenerator;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use Twilio\Rest\Api\V2010\Account\Message\MediaPage;
+use Illuminate\Support\Facades\Auth;
 
 class VideoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
+    public function index(Request $request)
     {
-        $videos = Media::Isvideo()->IdDescending()->paginate(4);
-        return view('video.index',compact('videos'));
+        $query = Media::isvideo()->idDescending();
+
+        if ($request->get('status') === 'published') {
+            $query->where('statut', 1);
+        } elseif ($request->get('status') === 'draft') {
+            $query->where('statut', 0);
+        }
+
+        $videos = $query->paginate(10)->withQueryString();
+
+        return view('video.index', compact('videos'));
     }
 
-
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function create()
     {
         $sources = Source::all();
         $thematiques = Thematique::all();
-        return view('video.create',compact('sources','thematiques'));
+
+        return view('video.create', compact('sources', 'thematiques'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(MediaRequest $request)
     {
-   
-       
-    $statut = $request->has('statut') ? 1 : 0;
+        $statut = $request->has('statut') ? 1 : 0;
 
-    Media::create([
-        'user_id'=>$request->user_id,
-        'source_id'=>$request->source_id,
-        'thematique_id'=>json_encode($request->thematique_id),
-        'description'=>$request->description,
-        'type'=>$request->type,
-        'statut'=>$statut,
-        'media'=>$request->media,
-        'title'=>$request->title,
-        'auteur'=>$request->auteur,
-        'code_media'=>$request->code_media,
-    ]);
-    return redirect()->route('videos.index')->with('message','Enregistrement effectué avec succès');
+        $video = Media::create([
+            'user_id' => Auth::id(),
+            'thematique_id' => json_encode($request->thematique_id),
+            'source_id' => $request->source_id,
+            'description' => $request->description,
+            'type' => 1,
+            'statut' => $statut,
+            'media' => $request->media,
+            'title' => $request->title,
+            'auteur' => $request->auteur,
+            'code_media' => MediaCodeGenerator::generate(1),
+        ]);
+
+        return redirect()
+            ->route('public.videos.show', $video)
+            ->with('message', 'Vidéo enregistrée. Voici l\'aperçu tel qu\'elle apparaîtra au public.');
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function show(Media $video)
     {
-        return view('video.show', compact('video'));
+        $viewCount = ContentView::where('viewable_type', Media::class)
+            ->where('viewable_id', $video->id)
+            ->where('action', 'view')
+            ->count();
+
+        return view('video.show', compact('video', 'viewCount'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function edit($id)
     {
-        $video = Media::find($id);
+        $video = Media::findOrFail($id);
         $sources = Source::all();
         $thematiques = Thematique::all();
-        return view('video.edit',compact('sources','thematiques','video'));
+
+        return view('video.edit', compact('sources', 'thematiques', 'video'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-   
-    
     public function update(MediaRequest $request, $id)
     {
         $video = Media::findOrFail($id);
-    
-        // $request->validate([
-        //     'user_id' => 'required|integer|exists:users,id',
-        //     'source_id' => 'required|integer|exists:sources,id',
-        //     'thematique_id' => 'required|array',
-        //     'thematique_id.*' => 'integer|exists:thematiques,id',
-        //     'description' => 'nullable|string|max:255',
-        //     'type' => 'required', // Ajoutez ici les valeurs valides pour le champ type
-        //     'statut' => 'boolean',
-        //     'video' => 'required', // Ajoutez ici les formats de fichier audio autorisés
-        //     'title' => 'required|string|max:255',
-        //     'auteur' => 'required|string|max:255',
-        //     'code_media' => 'required|string|max:255',
-        // ]);
-    
-        // Mettre à jour le statut
         $statut = $request->has('statut') ? 1 : 0;
-    
-    
-       
-        // Mettre à jour les autres champs du modèle
-        $video->user_id = $request->user_id;
-        $video->source_id = $request->source_id;
-        $video->thematique_id = json_encode($request->thematique_id);
-        $video->description = $request->description;
-        $video->type = $request->type;
-        $video->statut = $statut;
-        $video->title = $request->title;
-        $video->auteur = $request->auteur;
-        $video->code_media = $request->code_media;
-    
-        // Enregistrer les modifications dans la base de données
-        $video->save();
-    
-        return redirect()->route('videos.index')->with('message', 'Mise à jour effectuée avec succès');
-    }
-    
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
+        $video->update([
+            'user_id' => Auth::id(),
+            'source_id' => $request->source_id,
+            'thematique_id' => json_encode($request->thematique_id),
+            'description' => $request->description,
+            'type' => 1,
+            'statut' => $statut,
+            'media' => $request->media,
+            'title' => $request->title,
+            'auteur' => $request->auteur,
+        ]);
+
+        if (! $video->code_media) {
+            $video->update(['code_media' => MediaCodeGenerator::generate(1)]);
+        }
+
+        return redirect()
+            ->route('public.videos.show', $video)
+            ->with('message', 'Vidéo mise à jour. Voici l\'aperçu public.');
+    }
+
+    public function destroy(Request $request, $id)
     {
-        $video = Media::find($id);
-        $video->delete();
+        Media::findOrFail($id)->delete();
 
-        return redirect()->route('videos.index')
-            ->with('message', 'video supprimée!!!');
+        if ($request->input('redirect') === 'public') {
+            return redirect()->route('home')->with('success', 'Vidéo supprimée.');
+        }
+
+        return redirect()->route('videos.index')->with('message', 'Vidéo supprimée');
     }
 
-    public function desactivate($id){
-        $video = Media::find($id);
-        $video->update([
-            'statut'=> 0
-        ]);
-        return back();
-    }
-    public function activate($id){
-        $video = Media::find($id);
-        $video->update([
-            'statut'=> 1
-        ]);
+    public function desactivate($id)
+    {
+        Media::findOrFail($id)->update(['statut' => 0]);
+
         return back();
     }
 
-    public function localisationIndex($id){
-        $video = Media::find($id);
+    public function activate($id)
+    {
+        Media::findOrFail($id)->update(['statut' => 1]);
+
+        return back();
+    }
+
+    public function localisationIndex($id)
+    {
+        $video = Media::findOrFail($id);
+
         return view('video.localisation', compact('video'));
     }
 
-    public function addLocalisation(Request $request){
-       $getLocalisationId = $request->localisation_id;
-       Media::where('id',$getLocalisationId)->update([
-        'localisation'=>$request->localisation
-      ]);
-      return redirect()->route('videos.index')->with('message','Localisation Ajoutée !!');
-
-    }
-
-    public function removeLocalisation(Request $request)
+    public function addLocalisation(Request $request)
     {
-        $getLocalisationId = $request->localisation_id;
-       Media::where('id',$getLocalisationId)->update([
-        'localisation'=> null
-      ]);
+        $request->validate([
+            'localisation_id' => 'required|integer|exists:media,id',
+            'localisation' => 'required|string',
+        ]);
 
-        return redirect()->route('videos.index')
-            ->with('message', 'localisation supprimée!!!');
+        Media::where('id', $request->localisation_id)->update([
+            'localisation' => $request->localisation,
+        ]);
+
+        return redirect()->route('videos.index')->with('message', 'Localisation ajoutée');
     }
 
+    public function removeLocalisation($id)
+    {
+        Media::findOrFail($id)->update(['localisation' => null]);
+
+        return redirect()->route('videos.index')->with('message', 'Localisation supprimée');
+    }
+
+    public function report(Request $request, $id)
+    {
+        $video = Media::findOrFail($id);
+
+        $request->validate([
+            'message' => 'required|string|min:10|max:2000',
+        ]);
+
+        MediaReport::create([
+            'media_id' => $video->id,
+            'user_id' => Auth::id(),
+            'reporter_name' => Auth::user()->firstname . ' ' . Auth::user()->lastname,
+            'reporter_email' => Auth::user()->email,
+            'message' => $request->message,
+        ]);
+
+        return back()->with('success', 'Signalement enregistré.');
+    }
 }

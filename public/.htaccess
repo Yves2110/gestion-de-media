@@ -5,6 +5,9 @@
 
     RewriteEngine On
 
+    # Bloquer l'accès direct aux PDF (téléchargement contrôlé par l'application)
+    RewriteRule ^storage/document/ - [F,L]
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]

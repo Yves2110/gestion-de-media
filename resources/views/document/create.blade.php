@@ -1,11 +1,12 @@
 @extends('layouts.dashboard')
 @section('dashboard_content')
     @include('dashboard.components.nav')
-    @include('dashboard.components.menu');
+<div class="admin-layout-wrapper">
+@include('dashboard.components.sidebar')
     <!-- END: Main Menu-->
 
     <!-- BEGIN: Content-->
-    <div class="app-content content ">
+    <div class="app-content content admin-main-content">
         <div class="content-overlay"></div>
         <div class="header-navbar-shadow"></div>
         <div class="content-wrapper container-xxl p-0">
@@ -32,17 +33,22 @@
                                                 </div>
                                             @endif
                                             <h6 class="text-uppercase text-center mb-2">Formulaire d'ajout d'un document</h6>
+                                            <div class="alert alert-light border small mb-3">
+                                                <strong>Affichage sur la page d'accueil :</strong>
+                                                photo de couverture, titre, auteur, source, résumé (aperçu), boutons Lire et Télécharger.
+                                                Cochez « Publier sur la page d'accueil » pour rendre le document visible publiquement.
+                                            </div>
                                             <form action="{{ route('documents.store') }}" method="post" enctype="multipart/form-data">
                                                 @csrf
                                                 <div class="mb-2 row">
                                                     <div class="col-md-6">
                                                         <input type="hidden" name="user_id" value="{{Auth::user()->id}}">
-                                                        <label class="form-label">Titre</label>
+                                                        <label class="form-label">Titre <span class="text-muted small">(carte)</span></label>
                                                         <input type="text" name="title" value="{{old('title')}}" class="form-control ">
                                                         @error('title')
                                                         <h6 class="fw-bold  text-danger">{{ $message }}</h6>
                                                         @enderror
-                                                        <label class="form-label">Auteur</label>
+                                                        <label class="form-label">Auteur <span class="text-muted small">(sous-titre carte)</span></label>
                                                         <input type="text" name="auteur" value="{{old('auteur')}}" class="form-control ">
                                                         @error('auteur')
                                                         <h6 class="fw-bold  text-danger">{{ $message }} </h6>
@@ -60,8 +66,13 @@
                                                         @enderror
 
                                                         <label class="form-label mt2">Catégorie</label>
-                                                        <input type="text" value="{{old('categorie')}}"  name="categorie" class="form-control ">
-                                                        @error('categorie')
+                                                        <select class="form-select" name="category_id" required>
+                                                            <option value="">Choisir une catégorie</option>
+                                                            @foreach ($categories as $category)
+                                                                <option value="{{ $category->id }}" @selected(old('category_id') == $category->id)>{{ $category->label }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                        @error('category_id')
                                                         <h6 class="fw-bold  text-danger">{{ $message }} </h6>
                                                         @enderror
 
@@ -72,16 +83,16 @@
                                                         @enderror
                                                         
                                                         <div class="mt-2">
-                                                            <label for="formFile" class="form-label">Fichier document</label>
-                                                            <input class="form-control" value="{{old('file_doc')}}" name="file_doc" type="file" id="formFile">
+                                                            <label for="file_doc" class="form-label">Fichier PDF <span class="text-muted small">(bouton Télécharger)</span></label>
+                                                            <input class="form-control" name="file_doc" type="file" id="file_doc" accept=".pdf">
                                                             @error('file_doc')
                                                             <h6 class="fw-bold  text-danger">{{ $message }} </h6>
                                                             @enderror
                                                           </div>
 
                                                           <div class="my-2">
-                                                            <label for="formFile" class="form-label">Image du document</label>
-                                                            <input class="form-control" value="{{old('picture')}}" name="picture" type="file" id="formFile">
+                                                            <label for="picture" class="form-label">Photo de couverture <span class="text-muted small">(image carte)</span></label>
+                                                            <input class="form-control" name="picture" type="file" id="picture" accept="image/*">
                                                             @error('picture')
                                                             <h6 class="fw-bold  text-danger">{{ $message }} </h6>
                                                             @enderror
@@ -98,7 +109,7 @@
                                                         <h6 class="fw-bold  text-danger">{{ $message }} </h6>
                                                         @enderror
 
-                                                        <label class="form-label" for="basicSelect">Sélection une source</label> 
+                                                        <label class="form-label" for="source_id">Source <span class="text-muted small">(affichée sur la carte)</span></label>
                                                         <select class="form-select" name="source_id" aria-label="Default select example" required>
                                                             <option >Selectionner une source</option>
                                                             @forelse ($sources as $source)
@@ -107,26 +118,20 @@
                                                                 <p>Aucune source</p>
                                                             @endforelse
                                                           </select>
-                                                          <label class="form-label" for="basicSelect">Sélection une thématique</label> 
-                                                          <select class="form-select" name="thematique_id[]" multiple aria-label="multiple select example" required>
-                                                            <option >Open this select menu</option>
-                                                            @foreach ($thematiques as $thematique)
-                                                            <option value="{{$thematique->id}}">{{$thematique->label}}</option>
-                                                            @endforeach
-                                                          </select>
-                                                          <h6 class="text-danger fw-bold ">Maintenir ctrl + clic droit de la souris pour selectionner plusieurs thémaques</h6>
+                                                          <label class="form-label">Thématiques</label>
+                                                          <x-thematique-checkboxes :thematiques="$thematiques" :selected="array_map('intval', old('thematique_id', []))" />
                                                           <div class="form-floating my-1">
-                                                            <textarea class="form-control" name="resume" value="{{old('resume')}}" placeholder="Leave a comment here" id="floatingTextarea2" style="height: 100px"></textarea>
+                                                            <textarea class="form-control" name="resume" placeholder="Description complète (minimum 250 mots)..." id="floatingTextarea2" style="height: 180px">{{ old('resume') }}</textarea>
                                                             @error('resume')
-                                                            <h6 class="fw-bold mt-1 text-danger">{{ $message }}
+                                                            <h6 class="fw-bold mt-1 text-danger">{{ $message }}</h6>
                                                             @enderror
-                                                            <label for="floatingTextarea2">Resumé</label>
+                                                            <label for="floatingTextarea2">Description <span class="text-muted small">(min. 250 mots, page Lire)</span></label>
                                                           </div>
     
                                                           <div class="form-check mt-2">
-                                                            <input class="form-check-input" value="{{old('statut_publication')}}" type="checkbox" name="statut_publication">
-                                                            <label class="form-check-label" for="flexCheckDefault">
-                                                              Demande de publication
+                                                            <input class="form-check-input" type="checkbox" name="statut_publication" id="statut_publication" @checked(old('statut_publication'))>
+                                                            <label class="form-check-label" for="statut_publication">
+                                                              Publier sur la page d'accueil (visible par tous, sans connexion)
                                                             </label>
                                                           </div>
                                                           <div class="form-check mt-1">
@@ -151,6 +156,7 @@
 
     <div class="sidenav-overlay"></div>
     <div class="drag-target"></div>
-    @include('dashboard.components.footer')
+    </div>
+@include('dashboard.components.footer')
     </body>
 @endsection
