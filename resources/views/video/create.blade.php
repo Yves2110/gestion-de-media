@@ -15,7 +15,7 @@
                                 <div class="card-body">
                                     <h5 class="text-center mb-1">Ajouter une vidéo</h5>
                                     <p class="text-muted text-center small mb-4">Renseignez les informations et le lien YouTube du contenu.</p>
-                                    <form action="{{ route('videos.store') }}" method="post" novalidate>
+                                    <form action="{{ route('videos.store') }}" method="post" enctype="multipart/form-data" novalidate>
                                         @csrf
                                         <x-media-form-fields type="video" :sources="$sources" :thematiques="$thematiques" />
                                         <div class="d-flex justify-content-end">

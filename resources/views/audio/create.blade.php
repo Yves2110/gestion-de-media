@@ -15,7 +15,7 @@
                                 <div class="card-body">
                                     <h5 class="text-center mb-1">Ajouter un audio</h5>
                                     <p class="text-muted text-center small mb-4">Renseignez les informations et le lien HTTPS du fichier audio.</p>
-                                    <form action="{{ route('audios.store') }}" method="post" novalidate>
+                                    <form action="{{ route('audios.store') }}" method="post" enctype="multipart/form-data" novalidate>
                                         @csrf
                                         <x-media-form-fields type="audio" :sources="$sources" :thematiques="$thematiques" />
                                         <div class="d-flex justify-content-end">

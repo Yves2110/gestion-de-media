@@ -26,6 +26,7 @@
                         <table class="table">
                             <thead>
                                 <tr>
+                                    <th>Couverture</th>
                                     <th>Titre</th>
                                     <th>Auteur</th>
                                     <th>Code</th>
@@ -39,6 +40,13 @@
                             <tbody>
                                 @forelse ($audios as $audio)
                                 <tr>
+                                    <td>
+                                        @if ($audio->picture)
+                                            <img src="{{ asset('storage/picture/' . $audio->picture) }}" width="50" height="50" class="rounded object-fit-cover" alt="couverture">
+                                        @else
+                                            <span class="text-muted small">—</span>
+                                        @endif
+                                    </td>
                                     <td>{{ $audio->title }}</td>
                                     <td>{{ $audio->auteur }}</td>
                                     <td>{{ $audio->code_media ?? 'Non attribué' }}</td>
@@ -62,7 +70,7 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="8">
+                                    <td colspan="9">
                                         @include('components.empty-state', [
                                             'title' => 'Aucun audio',
                                             'message' => 'Commencez par ajouter votre premier contenu audio.',

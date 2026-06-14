@@ -42,6 +42,13 @@
                         </div>
                     </div>
 
+                    @if ($video->thumbnail_url)
+                        <div class="mb-3">
+                            <h6>{{ $video->picture ? 'Couverture' : 'Miniature' }}</h6>
+                            <img src="{{ $video->thumbnail_url }}" class="rounded object-fit-cover" width="160" height="90" alt="Couverture">
+                        </div>
+                    @endif
+
                     @if ($video->description)
                         <div class="mb-3">
                             <h6>Description</h6>

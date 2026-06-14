@@ -19,16 +19,17 @@ class DocumentSubmissionController extends Controller
         $sources = Source::orderBy('label')->get();
         $thematiques = Thematique::orderBy('label')->get();
         $categories = Category::orderBy('label')->get();
+        $isAdmin = auth()->check() && auth()->user()->isAdmin();
 
-        return view('document.submit-public', compact('sources', 'thematiques', 'categories'));
+        return view('document.submit-public', compact('sources', 'thematiques', 'categories', 'isAdmin'));
     }
 
     public function store(Request $request)
     {
-        $request->validate([
+        $isAdmin = auth()->check() && auth()->user()->isAdmin();
+
+        $rules = [
             'website' => 'nullable|max:0',
-            'submitter_name' => 'required|string|min:2|max:120',
-            'submitter_email' => 'required|email|max:190',
             'title' => 'required|string|max:255',
             'auteur' => 'required|string|max:255',
             'resume' => ['required', 'string', new MinWords(250)],
@@ -39,7 +40,14 @@ class DocumentSubmissionController extends Controller
             'thematique_id.*' => 'integer|exists:thematiques,id',
             'category_id' => 'nullable|integer|exists:categories,id',
             'page' => 'nullable|integer|min:1',
-        ]);
+        ];
+
+        if (! $isAdmin) {
+            $rules['submitter_name'] = 'required|string|min:2|max:120';
+            $rules['submitter_email'] = 'required|email|max:190';
+        }
+
+        $request->validate($rules);
 
         $adminId = User::whereIn('role_id', [1, 2])->value('id');
 
@@ -53,8 +61,7 @@ class DocumentSubmissionController extends Controller
 
         $thematiqueIds = $request->thematique_id ?? [];
         $sourceId = $request->source_id ?? Source::query()->value('id');
-
-        $adminId = User::whereIn('role_id', [1, 2])->value('id');
+        $published = $isAdmin && $request->has('statut_publication');
 
         if (!$sourceId || !$adminId) {
             return back()->with('error', 'Impossible de soumettre pour le moment. Contactez l\'administrateur.')->withInput();
@@ -64,8 +71,8 @@ class DocumentSubmissionController extends Controller
             ? Category::find($request->category_id)
             : Category::where('label', 'Soumission publique')->first();
 
-        Document::create([
-            'user_id' => $adminId,
+        $document = Document::create([
+            'user_id' => $isAdmin ? auth()->id() : $adminId,
             'source_id' => $sourceId,
             'thematique_id' => json_encode($thematiqueIds),
             'title' => $request->title,
@@ -78,12 +85,18 @@ class DocumentSubmissionController extends Controller
             'publication_date' => now(),
             'file_doc' => $documentFile,
             'picture' => $pictureFile,
-            'statut_publication' => 0,
+            'statut_publication' => $published ? 1 : 0,
             'ask_form' => 0,
-            'is_guest_submission' => true,
-            'submitter_name' => $request->submitter_name,
-            'submitter_email' => $request->submitter_email,
+            'is_guest_submission' => ! $isAdmin,
+            'submitter_name' => $isAdmin ? null : $request->submitter_name,
+            'submitter_email' => $isAdmin ? null : $request->submitter_email,
         ]);
+
+        if ($published) {
+            return redirect()
+                ->route('public.documents.show', $document)
+                ->with('message', 'Document publié avec succès.');
+        }
 
         return redirect()->route('home')->with('success', 'Votre document a été envoyé. Il sera visible après validation par un administrateur.');
     }

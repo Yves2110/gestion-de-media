@@ -26,6 +26,7 @@
                         <table class="table">
                             <thead>
                                 <tr>
+                                    <th>Couverture</th>
                                     <th>Titre</th>
                                     <th>Auteur</th>
                                     <th>Code vidéo</th>
@@ -39,6 +40,15 @@
                             <tbody>
                                 @forelse ($videos as $video)
                                 <tr>
+                                    <td>
+                                        @if ($video->picture)
+                                            <img src="{{ asset('storage/picture/' . $video->picture) }}" width="50" height="50" class="rounded object-fit-cover" alt="couverture">
+                                        @elseif ($video->thumbnail_url)
+                                            <img src="{{ $video->thumbnail_url }}" width="50" height="50" class="rounded object-fit-cover" alt="miniature YouTube">
+                                        @else
+                                            <span class="text-muted small">—</span>
+                                        @endif
+                                    </td>
                                     <td>{{ $video->title }}</td>
                                     <td>{{ $video->auteur }}</td>
                                     <td>{{ $video->code_media ?? 'Non attribué' }}</td>
@@ -62,7 +72,7 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="8">
+                                    <td colspan="9">
                                         @include('components.empty-state', [
                                             'title' => 'Aucune vidéo',
                                             'message' => 'Ajoutez votre première vidéo au catalogue.',

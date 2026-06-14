@@ -9,6 +9,7 @@ use App\Models\Media;
 use App\Models\MediaReport;
 use App\Models\Source;
 use App\Models\Thematique;
+use App\Support\CoverImageStorage;
 use App\Support\MediaCodeGenerator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -41,6 +42,9 @@ class AudioController extends Controller
     public function store(MediaRequest $request)
     {
         $statut = $request->has('statut') ? 1 : 0;
+        $pictureFile = $request->hasFile('picture')
+            ? CoverImageStorage::store($request->file('picture'))
+            : null;
 
         $audio = Media::create([
             'user_id' => Auth::id(),
@@ -50,6 +54,7 @@ class AudioController extends Controller
             'type' => 0,
             'statut' => $statut,
             'media' => $request->media,
+            'picture' => $pictureFile,
             'title' => $request->title,
             'auteur' => $request->auteur,
             'code_media' => MediaCodeGenerator::generate(0),
@@ -83,6 +88,12 @@ class AudioController extends Controller
     {
         $audio = Media::findOrFail($id);
         $statut = $request->has('statut') ? 1 : 0;
+        $pictureFile = $audio->picture;
+
+        if ($request->hasFile('picture')) {
+            CoverImageStorage::delete($audio->picture);
+            $pictureFile = CoverImageStorage::store($request->file('picture'));
+        }
 
         $audio->update([
             'user_id' => Auth::id(),
@@ -92,6 +103,7 @@ class AudioController extends Controller
             'type' => 0,
             'statut' => $statut,
             'media' => $request->media,
+            'picture' => $pictureFile,
             'title' => $request->title,
             'auteur' => $request->auteur,
         ]);
@@ -107,7 +119,9 @@ class AudioController extends Controller
 
     public function destroy(Request $request, $id)
     {
-        Media::findOrFail($id)->delete();
+        $audio = Media::findOrFail($id);
+        CoverImageStorage::delete($audio->picture);
+        $audio->delete();
 
         if ($request->input('redirect') === 'public') {
             return redirect()->route('home')->with('success', 'Audio supprimé.');

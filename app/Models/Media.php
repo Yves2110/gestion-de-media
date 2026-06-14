@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\MediaThumbnail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -11,12 +12,24 @@ class Media extends Model
 
     protected $fillable = [
         'user_id', 'source_id', 'thematique_id', 'title', 'description',
-        'auteur', 'code_media', 'statut', 'type', 'media', 'localisation',
+        'auteur', 'code_media', 'statut', 'type', 'media', 'picture', 'localisation',
+        'is_guest_submission', 'submitter_name', 'submitter_email',
     ];
 
     protected $casts = [
         'statut' => 'boolean',
+        'is_guest_submission' => 'boolean',
     ];
+
+    public function getPictureUrlAttribute(): ?string
+    {
+        return $this->picture ? asset('storage/picture/' . $this->picture) : null;
+    }
+
+    public function getThumbnailUrlAttribute(): ?string
+    {
+        return MediaThumbnail::url($this);
+    }
 
     public function getCustomAttribute()
     {

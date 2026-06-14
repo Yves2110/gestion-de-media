@@ -3,6 +3,8 @@
     'item' => null,
     'sources',
     'thematiques',
+    'publicContribution' => false,
+    'isAdmin' => false,
 ])
 
 @php
@@ -15,10 +17,12 @@
         : array_map('intval', old('thematique_id', []));
 @endphp
 
+@if (! $publicContribution)
 <x-validation-summary />
 
 <input type="hidden" name="user_id" value="{{ Auth::id() }}">
 <input type="hidden" name="type" value="{{ $typeValue }}">
+@endif
 
 <div class="mb-2">
     <label class="form-label" for="media-title">
@@ -126,6 +130,16 @@
     <x-field-error name="description" />
 </div>
 
+<div class="mb-2">
+    <x-cover-image-field
+        :current="$item?->picture"
+        input-id="media-picture"
+        :compact="$publicContribution"
+        :hint="$isVideo ? 'Remplace la miniature YouTube sur les cartes si renseignée.' : 'Affichée sur les cartes et la fiche publique.'"
+    />
+</div>
+
+@if (! $publicContribution)
 <div class="form-check mb-3">
     <input class="form-check-input" type="checkbox" name="statut" id="media-statut"
            {{ old('statut', ($item->statut ?? 0) == 1 ? 1 : 0) ? 'checked' : '' }}>
@@ -134,6 +148,7 @@
         <x-form-help-icon text="Si décoché, le contenu reste en brouillon jusqu'à publication manuelle depuis la liste." />
     </label>
 </div>
+@endif
 
 @once
     @push('scripts')

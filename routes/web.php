@@ -16,6 +16,7 @@ use App\Http\Controllers\Document\DocumentSubmissionController;
 use App\Http\Controllers\Manage\RegistrationManageController;
 use App\Http\Controllers\Manage\UserManageController;
 use App\Http\Controllers\Media\AudioController;
+use App\Http\Controllers\Media\MediaSubmissionController;
 use App\Http\Controllers\Media\VideoController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\Source\SourceController;
@@ -30,8 +31,18 @@ Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 Route::get('register', [RegisterController::class, 'index'])->middleware('guest')->name('register');
 Route::post('registration', [RegisterController::class, 'registration'])->middleware(['guest', 'throttle:register'])->name('register.store');
 
-Route::get('proposer-document', [DocumentSubmissionController::class, 'create'])->name('documents.submit');
+Route::prefix('contribuer')->name('contrib.')->group(function () {
+    Route::get('document', [DocumentSubmissionController::class, 'create'])->name('documents.create');
+    Route::post('document', [DocumentSubmissionController::class, 'store'])->middleware('throttle:public-forms')->name('documents.store');
+    Route::get('audio', [MediaSubmissionController::class, 'createAudio'])->name('audios.create');
+    Route::post('audio', [MediaSubmissionController::class, 'storeAudio'])->middleware('throttle:public-forms')->name('audios.store');
+    Route::get('video', [MediaSubmissionController::class, 'createVideo'])->name('videos.create');
+    Route::post('video', [MediaSubmissionController::class, 'storeVideo'])->middleware('throttle:public-forms')->name('videos.store');
+});
+
+Route::redirect('proposer-document', '/contribuer/document');
 Route::post('proposer-document', [DocumentSubmissionController::class, 'store'])->middleware('throttle:public-forms')->name('documents.submit.store');
+Route::get('proposer-document', fn () => redirect()->route('contrib.documents.create'))->name('documents.submit');
 
 Route::get('bibliotheque/documents/{document}', [PublicDocumentController::class, 'show'])->name('public.documents.show');
 Route::get('bibliotheque/documents/{document}/telecharger', [PublicDocumentController::class, 'download'])->name('public.documents.download');

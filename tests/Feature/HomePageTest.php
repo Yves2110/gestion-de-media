@@ -28,7 +28,7 @@ class HomePageTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('Plateforme de mutualisation');
         $response->assertSee('Dernières publications');
-        $response->assertSee('Proposer un document');
+        $response->assertSee('Contribuer');
         $response->assertSee('Espace membre');
     }
 

@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Document;
 use App\Models\Media;
 use App\Models\User;
-use App\Support\VideoEmbed;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
@@ -30,9 +29,7 @@ class HomeController extends Controller
 
         $publications = $this->paginatePublications($request, $typeFilter);
 
-        $heroImages = $this->buildHeroImages(
-            Document::where('statut_publication', 1)->latest()->limit(6)->get()
-        );
+        $heroImages = $this->buildHeroImages();
 
         $sectionTitle = match ($typeFilter) {
             'documents' => 'Documents',
@@ -118,7 +115,7 @@ class HomeController extends Controller
             'title' => $video->title,
             'auteur' => $video->auteur,
             'date' => $video->created_at,
-            'thumbnail' => VideoEmbed::thumbnailUrl($video->media),
+            'thumbnail' => $video->thumbnail_url,
             'description' => Str::limit(strip_tags($video->description ?? ''), 160),
             'url' => route('public.videos.show', $video->id),
         ]);
@@ -139,7 +136,7 @@ class HomeController extends Controller
             'title' => $audio->title,
             'auteur' => $audio->auteur,
             'date' => $audio->created_at,
-            'thumbnail' => null,
+            'thumbnail' => $audio->thumbnail_url,
             'url' => route('public.audios.show', $audio->id),
         ]);
     }
@@ -198,7 +195,7 @@ class HomeController extends Controller
                     'title' => $audio->title,
                     'auteur' => $audio->auteur,
                     'date' => $audio->created_at,
-                    'thumbnail' => null,
+                    'thumbnail' => $audio->thumbnail_url,
                     'url' => $this->publicationUrl('audio', $audio->id),
                 ]);
             } elseif ($entry['type'] === 'video') {
@@ -212,7 +209,7 @@ class HomeController extends Controller
                     'title' => $video->title,
                     'auteur' => $video->auteur,
                     'date' => $video->created_at,
-                    'thumbnail' => VideoEmbed::thumbnailUrl($video->media),
+                    'thumbnail' => $video->thumbnail_url,
                     'description' => Str::limit(strip_tags($video->description ?? ''), 160),
                     'url' => $this->publicationUrl('video', $video->id),
                 ]);
@@ -238,17 +235,17 @@ class HomeController extends Controller
         return $items;
     }
 
-    private function buildHeroImages(Collection $documents): array
+    private function buildHeroImages(): array
     {
         $placeholders = $this->heroPlaceholders();
 
-        $covers = $documents
-            ->filter(function ($doc) {
-                return $doc->picture
-                    && Storage::disk('public')->exists('picture/' . $doc->picture);
-            })
+        $covers = collect()
+            ->merge(Document::where('statut_publication', 1)->latest()->limit(6)->get())
+            ->merge(Media::where('statut', 1)->whereNotNull('picture')->where('picture', '!=', '')->latest()->limit(6)->get())
+            ->sortByDesc('created_at')
             ->take(6)
-            ->map(fn ($doc) => asset('storage/picture/' . $doc->picture))
+            ->filter(fn ($item) => $item->picture && Storage::disk('public')->exists('picture/' . $item->picture))
+            ->map(fn ($item) => asset('storage/picture/' . $item->picture))
             ->values()
             ->all();
 

@@ -15,7 +15,7 @@
                                 <div class="card-body">
                                     <h5 class="text-center mb-1">Modifier la vidéo</h5>
                                     <p class="text-muted text-center small mb-4">Mettez à jour les informations ou le lien YouTube.</p>
-                                    <form action="{{ route('videos.update', $video->id) }}" method="post" novalidate>
+                                    <form action="{{ route('videos.update', $video->id) }}" method="post" enctype="multipart/form-data" novalidate>
                                         @csrf
                                         @method('PUT')
                                         <x-media-form-fields type="video" :item="$video" :sources="$sources" :thematiques="$thematiques" />

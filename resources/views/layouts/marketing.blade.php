@@ -54,9 +54,7 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('home', ['type' => 'audios']) }}#publications">Audios</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('documents.submit*') ? 'active' : '' }}" href="{{ route('documents.submit') }}">Proposer un document</a>
-                        </li>
+                        <x-contrib-menu align="menu" />
 
                         @auth
 

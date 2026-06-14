@@ -9,6 +9,7 @@ use App\Models\Media;
 use App\Models\MediaReport;
 use App\Models\Source;
 use App\Models\Thematique;
+use App\Support\CoverImageStorage;
 use App\Support\MediaCodeGenerator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -41,6 +42,9 @@ class VideoController extends Controller
     public function store(MediaRequest $request)
     {
         $statut = $request->has('statut') ? 1 : 0;
+        $pictureFile = $request->hasFile('picture')
+            ? CoverImageStorage::store($request->file('picture'))
+            : null;
 
         $video = Media::create([
             'user_id' => Auth::id(),
@@ -50,6 +54,7 @@ class VideoController extends Controller
             'type' => 1,
             'statut' => $statut,
             'media' => $request->media,
+            'picture' => $pictureFile,
             'title' => $request->title,
             'auteur' => $request->auteur,
             'code_media' => MediaCodeGenerator::generate(1),
@@ -83,6 +88,12 @@ class VideoController extends Controller
     {
         $video = Media::findOrFail($id);
         $statut = $request->has('statut') ? 1 : 0;
+        $pictureFile = $video->picture;
+
+        if ($request->hasFile('picture')) {
+            CoverImageStorage::delete($video->picture);
+            $pictureFile = CoverImageStorage::store($request->file('picture'));
+        }
 
         $video->update([
             'user_id' => Auth::id(),
@@ -92,6 +103,7 @@ class VideoController extends Controller
             'type' => 1,
             'statut' => $statut,
             'media' => $request->media,
+            'picture' => $pictureFile,
             'title' => $request->title,
             'auteur' => $request->auteur,
         ]);
@@ -107,7 +119,9 @@ class VideoController extends Controller
 
     public function destroy(Request $request, $id)
     {
-        Media::findOrFail($id)->delete();
+        $video = Media::findOrFail($id);
+        CoverImageStorage::delete($video->picture);
+        $video->delete();
 
         if ($request->input('redirect') === 'public') {
             return redirect()->route('home')->with('success', 'Vidéo supprimée.');

@@ -1,7 +1,7 @@
 @props(['item', 'type', 'showRoute' => null])
 
 @php
-    use App\Support\VideoEmbed;
+    use App\Support\MediaThumbnail;
     use Illuminate\Support\Str;
 
     $typeLabels = ['audio' => 'Audio', 'video' => 'Vidéo', 'document' => 'Document'];
@@ -9,20 +9,24 @@
     $label = $typeLabels[$type] ?? ucfirst($type);
     $color = $typeColors[$type] ?? 'secondary';
     $link = $showRoute ?? route('catalogue.show', ['type' => $type, 'id' => $item->id]);
-    $videoThumb = $type === 'video' ? VideoEmbed::thumbnailUrl($item->media) : null;
+    $thumbUrl = $type === 'document'
+        ? ($item->picture ? asset('storage/picture/' . $item->picture) : null)
+        : MediaThumbnail::url($item);
 @endphp
 
 <div class="col-md-6 col-lg-4 mb-3">
     <div class="card client-card h-100 shadow-sm {{ $type === 'video' ? 'video-media-card' : '' }}">
-        @if ($type === 'document' && $item->picture)
-            <img src="{{ asset('storage/picture/' . $item->picture) }}" class="card-img-top" alt="couverture" style="height:140px;object-fit:cover;">
-        @elseif ($type === 'video' && $videoThumb)
-            <a href="{{ $link }}" class="video-card-preview">
-                <img src="{{ $videoThumb }}" alt="{{ $item->title }}" class="card-img-top">
-                <span class="video-play-overlay" aria-hidden="true">
-                    <x-feather-icon name="play" :size="28" />
-                </span>
-            </a>
+        @if ($thumbUrl)
+            @if ($type === 'video')
+                <a href="{{ $link }}" class="video-card-preview">
+                    <img src="{{ $thumbUrl }}" alt="{{ $item->title }}" class="card-img-top">
+                    <span class="video-play-overlay" aria-hidden="true">
+                        <x-feather-icon name="play" :size="28" />
+                    </span>
+                </a>
+            @else
+                <img src="{{ $thumbUrl }}" class="card-img-top" alt="couverture" style="height:140px;object-fit:cover;">
+            @endif
         @endif
         <div class="card-body d-flex flex-column">
             <div class="mb-2">

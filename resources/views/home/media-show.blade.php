@@ -12,6 +12,9 @@
 
     <div class="card border-0 shadow-sm document-read-card content-read-compact">
         <div class="card-body">
+            @if ($item->thumbnail_url)
+                <img src="{{ $item->thumbnail_url }}" class="img-fluid rounded document-read-cover w-100 mb-3" alt="{{ $item->title }}">
+            @endif
             <h3 class="content-read-title">{{ $item->title }}</h3>
             <p class="content-read-meta text-muted">
                 {{ $item->auteur }}

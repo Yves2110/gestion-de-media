@@ -15,7 +15,7 @@
                                 <div class="card-body">
                                     <h5 class="text-center mb-1">Modifier l'audio</h5>
                                     <p class="text-muted text-center small mb-4">Mettez à jour les informations ou le lien du fichier audio.</p>
-                                    <form action="{{ route('audios.update', $audio->id) }}" method="post" novalidate>
+                                    <form action="{{ route('audios.update', $audio->id) }}" method="post" enctype="multipart/form-data" novalidate>
                                         @csrf
                                         @method('PUT')
                                         <x-media-form-fields type="audio" :item="$audio" :sources="$sources" :thematiques="$thematiques" />

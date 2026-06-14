@@ -42,6 +42,13 @@
                         </div>
                     </div>
 
+                    @if ($audio->thumbnail_url)
+                        <div class="mb-3">
+                            <h6>Couverture</h6>
+                            <img src="{{ $audio->thumbnail_url }}" class="rounded object-fit-cover" width="120" height="120" alt="Couverture">
+                        </div>
+                    @endif
+
                     @if ($audio->description)
                         <div class="mb-3">
                             <h6>Description</h6>

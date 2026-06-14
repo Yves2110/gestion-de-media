@@ -26,6 +26,7 @@ class MediaRequest extends FormRequest
             'description' => 'nullable|string|max:5000',
             'media' => ['required', 'string', new SafeMediaEmbed($type)],
             'type' => 'required|in:0,1',
+            'picture' => 'nullable|image|max:5120',
         ];
     }
 
@@ -41,6 +42,7 @@ class MediaRequest extends FormRequest
             'thematique_id.*' => 'thématique',
             'media' => $isVideo ? 'lien vidéo YouTube' : 'lien audio',
             'description' => 'description',
+            'picture' => 'image de couverture',
         ];
     }
 
