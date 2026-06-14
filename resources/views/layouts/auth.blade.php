@@ -21,12 +21,6 @@
             </div>
         </main>
     </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            document.querySelector('.btn-close')?.addEventListener('click', function () {
-                this.closest('.alert')?.style.setProperty('display', 'none');
-            });
-        });
-    </script>
+    <script src="{{ asset('assets/js/password-toggle.js') }}"></script>
 </body>
 </html>

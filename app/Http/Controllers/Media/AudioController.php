@@ -75,18 +75,16 @@ class AudioController extends Controller
         return view('audio.show', compact('audio', 'viewCount'));
     }
 
-    public function edit($id)
+    public function edit(Media $audio)
     {
-        $audio = Media::findOrFail($id);
         $sources = Source::all();
         $thematiques = Thematique::all();
 
         return view('audio.edit', compact('sources', 'thematiques', 'audio'));
     }
 
-    public function update(MediaRequest $request, $id)
+    public function update(MediaRequest $request, Media $audio)
     {
-        $audio = Media::findOrFail($id);
         $statut = $request->has('statut') ? 1 : 0;
         $pictureFile = $audio->picture;
 
@@ -117,9 +115,8 @@ class AudioController extends Controller
             ->with('message', 'Audio mis à jour. Voici l\'aperçu public.');
     }
 
-    public function destroy(Request $request, $id)
+    public function destroy(Request $request, Media $audio)
     {
-        $audio = Media::findOrFail($id);
         CoverImageStorage::delete($audio->picture);
         $audio->delete();
 

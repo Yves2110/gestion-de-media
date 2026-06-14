@@ -82,6 +82,21 @@ class PublicMediaTest extends TestCase
         $response->assertRedirect(route('public.audios.show', $audio));
     }
 
+    public function test_numeric_id_cannot_access_public_media_url(): void
+    {
+        $video = $this->createPublishedMedia(1);
+
+        $this->get('/bibliotheque/videos/' . $video->id)->assertStatus(404);
+        $this->get('/bibliotheque/audios/1')->assertStatus(404);
+    }
+
+    public function test_unpublished_media_not_accessible_by_uuid_to_guests(): void
+    {
+        $video = $this->createPublishedMedia(1, ['statut' => 0]);
+
+        $this->get(route('public.videos.show', $video))->assertStatus(404);
+    }
+
     private function createAdmin(): User
     {
         return User::create([

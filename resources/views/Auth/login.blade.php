@@ -19,7 +19,7 @@
             <label class="form-label mb-0">Mot de passe</label>
             <a href="{{ route('forget.password.get') }}" class="small">Oublié ?</a>
         </div>
-        <input type="password" class="form-control form-control-sm" name="password" required>
+        <x-password-input name="password" size="sm" required autocomplete="current-password" />
         @error('password')
             <small class="text-danger">{{ $message }}</small>
         @enderror

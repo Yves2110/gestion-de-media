@@ -15,9 +15,9 @@
                     @include('components.admin-content-actions', [
                         'item' => $document,
                         'isPublished' => (bool) $document->statut_publication,
-                        'previewUrl' => route('public.documents.show', $document->id),
-                        'editUrl' => route('documents.edit', $document->id),
-                        'destroyUrl' => route('documents.destroy', $document->id),
+                        'previewUrl' => route('public.documents.show', $document),
+                        'editUrl' => route('documents.edit', $document),
+                        'destroyUrl' => route('documents.destroy', $document),
                         'activateUrl' => route('documents.activate', $document->id),
                         'deactivateUrl' => route('documents.desactivate', $document->id),
                         'reportUrl' => route('documents.report', $document->id),
@@ -51,7 +51,7 @@
                         </div>
                     @endif
 
-                    <a href="{{ route('documents.download', $document->id) }}" class="btn btn-primary btn-sm mb-3">
+                    <a href="{{ route('documents.download', $document) }}" class="btn btn-primary btn-sm mb-3">
                         <i data-feather="download"></i> Télécharger le PDF
                     </a>
 

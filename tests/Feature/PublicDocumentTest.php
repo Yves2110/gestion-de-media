@@ -161,6 +161,13 @@ class PublicDocumentTest extends TestCase
 
 
 
+    public function test_numeric_id_cannot_access_public_document_url(): void
+    {
+        $doc = $this->createPublishedDocument();
+
+        $this->get('/bibliotheque/documents/' . $doc->id)->assertStatus(404);
+    }
+
     private function createPublishedDocument(array $overrides = []): Document
 
     {

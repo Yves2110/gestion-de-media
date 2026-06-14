@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ContentView;
 use App\Models\Media;
 use App\Models\MediaReport;
+use App\Support\VisitorActivity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -56,6 +57,7 @@ class PublicMediaController extends Controller
 
         if ($media->statut) {
             ContentView::record($media, 'view');
+            VisitorActivity::recordModel($media, 'view');
         }
 
         return view('home.media-show', [

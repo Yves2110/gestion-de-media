@@ -75,18 +75,16 @@ class VideoController extends Controller
         return view('video.show', compact('video', 'viewCount'));
     }
 
-    public function edit($id)
+    public function edit(Media $video)
     {
-        $video = Media::findOrFail($id);
         $sources = Source::all();
         $thematiques = Thematique::all();
 
         return view('video.edit', compact('sources', 'thematiques', 'video'));
     }
 
-    public function update(MediaRequest $request, $id)
+    public function update(MediaRequest $request, Media $video)
     {
-        $video = Media::findOrFail($id);
         $statut = $request->has('statut') ? 1 : 0;
         $pictureFile = $video->picture;
 
@@ -117,9 +115,8 @@ class VideoController extends Controller
             ->with('message', 'Vidéo mise à jour. Voici l\'aperçu public.');
     }
 
-    public function destroy(Request $request, $id)
+    public function destroy(Request $request, Media $video)
     {
-        $video = Media::findOrFail($id);
         CoverImageStorage::delete($video->picture);
         $video->delete();
 

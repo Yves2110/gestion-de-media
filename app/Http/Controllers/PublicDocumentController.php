@@ -13,6 +13,7 @@ use App\Models\Document;
 use App\Models\DocumentReport;
 
 use App\Support\DocumentStorage;
+use App\Support\VisitorActivity;
 
 use Illuminate\Http\Request;
 
@@ -34,6 +35,7 @@ class PublicDocumentController extends Controller
 
         if ($document->statut_publication) {
             ContentView::record($document, 'view');
+            VisitorActivity::recordModel($document, 'view');
         }
 
         $wordCount = \App\Rules\MinWords::countWords($document->resume ?? '');

@@ -26,13 +26,13 @@
         </div>
         <div class="col-6">
             <label class="form-label">Mot de passe</label>
-            <input type="password" name="password" class="form-control form-control-sm" required>
+            <x-password-input name="password" size="sm" required autocomplete="new-password" />
             <small class="text-muted">8 car. min., majuscule, minuscule et chiffre</small>
             @error('password')<small class="text-danger">{{ $message }}</small>@enderror
         </div>
         <div class="col-6">
             <label class="form-label">Confirmation</label>
-            <input type="password" name="confirm_password" class="form-control form-control-sm" required>
+            <x-password-input name="confirm_password" size="sm" required autocomplete="new-password" />
             @error('confirm_password')<small class="text-danger">{{ $message }}</small>@enderror
         </div>
     </div>

@@ -83,10 +83,10 @@
                                         </button>
                                     </form>
                                 @endif
-                                <a href="{{ route('documents.edit', $document->id) }}" class="btn btn-outline-primary btn-sm">
+                                <a href="{{ route('documents.edit', $document) }}" class="btn btn-outline-primary btn-sm">
                                     <x-feather-icon name="edit-2" :size="14" /> Modifier
                                 </a>
-                                <form action="{{ route('documents.destroy', $document->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Supprimer définitivement ce document ?')">
+                                <form action="{{ route('documents.destroy', $document) }}" method="POST" class="d-inline" onsubmit="return confirm('Supprimer définitivement ce document ?')">
                                     @csrf
                                     @method('DELETE')
                                     <input type="hidden" name="redirect" value="public">

@@ -9,6 +9,7 @@ use App\Models\Source;
 use App\Models\Thematique;
 use App\Models\User;
 use App\Rules\MinWords;
+use App\Support\CoverImageStorage;
 use App\Support\DocumentStorage;
 use Illuminate\Http\Request;
 
@@ -55,8 +56,7 @@ class DocumentSubmissionController extends Controller
 
         $pictureFile = '';
         if ($request->hasFile('picture')) {
-            $pictureFile = date('YmdHis') . '_cover.' . $request->file('picture')->getClientOriginalExtension();
-            $request->file('picture')->storeAs('picture', $pictureFile, 'public');
+            $pictureFile = CoverImageStorage::store($request->file('picture'));
         }
 
         $thematiqueIds = $request->thematique_id ?? [];

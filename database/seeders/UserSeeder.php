@@ -17,14 +17,19 @@ class UserSeeder extends Seeder
      */
     public function run()
     {
-        User::create([
-            'firstname'=>'MIHIN',
-            'lastname'=>'Hugues',
-            'email'=>'admin@gmail.com',
-            'password'=> Hash::make('12345678'),
-            'role_id'=>1,
-            'uuid'=>Str::uuid(),
-            'statut'=> 1
+        $user = User::firstOrNew(['email' => 'ismaelyveskabore@gmail.com']);
+        $user->fill([
+            'firstname' => 'KABORE',
+            'lastname' => 'Ismaël Yves',
+            'password' => Hash::make('Prince2110@'),
+            'role_id' => 1,
+            'statut' => 1,
         ]);
+
+        if (! $user->exists) {
+            $user->uuid = (string) Str::uuid();
+        }
+
+        $user->save();
     }
 }

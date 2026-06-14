@@ -33,18 +33,18 @@
                     @csrf
                     <div class="mb-2">
                         <label class="form-label">Mot de passe actuel</label>
-                        <input type="password" name="current_password" class="form-control" required>
+                        <x-password-input name="current_password" required autocomplete="current-password" />
                         @error('current_password')<small class="text-danger">{{ $message }}</small>@enderror
                     </div>
                     <div class="mb-2">
                         <label class="form-label">Nouveau mot de passe</label>
-                        <input type="password" name="password" class="form-control" required>
+                        <x-password-input name="password" required autocomplete="new-password" />
                         <small class="text-muted">8 caractères minimum, majuscule, minuscule et chiffre.</small>
                         @error('password')<small class="text-danger d-block">{{ $message }}</small>@enderror
                     </div>
                     <div class="mb-2">
                         <label class="form-label">Confirmer</label>
-                        <input type="password" name="password_confirmation" class="form-control" required>
+                        <x-password-input name="password_confirmation" required autocomplete="new-password" />
                     </div>
                     <button type="submit" class="btn btn-primary">Changer le mot de passe</button>
                 </form>

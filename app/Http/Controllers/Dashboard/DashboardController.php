@@ -11,10 +11,15 @@ use App\Models\Thematique;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
+    private const LIST_PER_PAGE = 5;
+
     public function index(Request $request)
     {
         $stats = [
@@ -28,50 +33,19 @@ class DashboardController extends Controller
             'clients' => User::where('role_id', 3)->count(),
         ];
 
-        $recentActivity = collect()
-            ->merge(
-                Media::with('user')->latest()->limit(5)->get()->map(fn ($m) => [
-                    'type' => $m->type === 0 ? 'Audio' : 'Vidéo',
-                    'title' => $m->title,
-                    'date' => $m->created_at,
-                    'user' => $m->user?->firstname,
-                    'edit_route' => $m->type === 0
-                        ? route('audios.edit', $m->id)
-                        : route('videos.edit', $m->id),
-                ])
-            )
-            ->merge(
-                Document::with('user')->latest()->limit(5)->get()->map(fn ($d) => [
-                    'type' => 'Document',
-                    'title' => $d->title,
-                    'date' => $d->created_at,
-                    'user' => $d->user?->firstname,
-                    'edit_route' => route('documents.edit', $d->id),
-                ])
-            )
-            ->sortByDesc('date')
-            ->take(8)
-            ->values();
+        $recentActivity = $this->paginateCollection(
+            $this->buildRecentActivity(),
+            $request,
+            'activity_page',
+            self::LIST_PER_PAGE
+        );
 
-        $draftsToPublish = collect()
-            ->merge(
-                Media::where('statut', 0)->latest()->limit(3)->get()->map(fn ($m) => [
-                    'type' => $m->type === 0 ? 'Audio' : 'Vidéo',
-                    'title' => $m->title,
-                    'edit_route' => $m->type === 0
-                        ? route('audios.edit', $m->id)
-                        : route('videos.edit', $m->id),
-                ])
-            )
-            ->merge(
-                Document::where('statut_publication', 0)->latest()->limit(3)->get()->map(fn ($d) => [
-                    'type' => 'Document',
-                    'title' => $d->title,
-                    'edit_route' => route('documents.edit', $d->id),
-                ])
-            )
-            ->take(5)
-            ->values();
+        $draftsToPublish = $this->paginateCollection(
+            $this->buildDraftsToPublish(),
+            $request,
+            'drafts_page',
+            self::LIST_PER_PAGE
+        );
 
         $weeklyPublications = [];
         for ($i = 3; $i >= 0; $i--) {
@@ -128,5 +102,78 @@ class DashboardController extends Controller
         $request->session()->put('onboarding_dismissed', true);
 
         return redirect()->route('dashboard');
+    }
+
+    private function buildRecentActivity(): Collection
+    {
+        return collect()
+            ->merge(
+                Media::with('user')->latest()->get()->map(fn ($m) => [
+                    'type' => $m->type === 0 ? 'Audio' : 'Vidéo',
+                    'title' => $m->title,
+                    'date' => $m->created_at,
+                    'user' => $m->user?->firstname,
+                    'edit_route' => $m->type === 0
+                        ? route('audios.edit', $m)
+                        : route('videos.edit', $m),
+                ])
+            )
+            ->merge(
+                Document::with('user')->latest()->get()->map(fn ($d) => [
+                    'type' => 'Document',
+                    'title' => $d->title,
+                    'date' => $d->created_at,
+                    'user' => $d->user?->firstname,
+                    'edit_route' => route('documents.edit', $d),
+                ])
+            )
+            ->sortByDesc('date')
+            ->values();
+    }
+
+    private function buildDraftsToPublish(): Collection
+    {
+        return collect()
+            ->merge(
+                Media::where('statut', 0)->latest()->get()->map(fn ($m) => [
+                    'type' => $m->type === 0 ? 'Audio' : 'Vidéo',
+                    'title' => $m->title,
+                    'date' => $m->updated_at,
+                    'edit_route' => $m->type === 0
+                        ? route('audios.edit', $m)
+                        : route('videos.edit', $m),
+                ])
+            )
+            ->merge(
+                Document::where('statut_publication', 0)->latest()->get()->map(fn ($d) => [
+                    'type' => 'Document',
+                    'title' => $d->title,
+                    'date' => $d->updated_at,
+                    'edit_route' => route('documents.edit', $d),
+                ])
+            )
+            ->sortByDesc('date')
+            ->values();
+    }
+
+    private function paginateCollection(
+        Collection $items,
+        Request $request,
+        string $pageName,
+        int $perPage
+    ): LengthAwarePaginator {
+        $page = Paginator::resolveCurrentPage($pageName);
+
+        return new LengthAwarePaginator(
+            $items->slice(($page - 1) * $perPage, $perPage)->values(),
+            $items->count(),
+            $perPage,
+            $page,
+            [
+                'path' => $request->url(),
+                'pageName' => $pageName,
+                'query' => $request->query(),
+            ]
+        );
     }
 }

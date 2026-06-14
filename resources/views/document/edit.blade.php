@@ -37,7 +37,7 @@
                                                 Champs affichés sur la carte : <strong>couverture, titre, auteur, source, résumé</strong>.
                                                 Le PDF alimente le bouton Télécharger ; la page Lire est publique si publié.
                                             </div>
-                                            <form action="{{ route('documents.update',$document->id) }}" method="post" enctype="multipart/form-data">
+                                            <form action="{{ route('documents.update', $document) }}" method="post" enctype="multipart/form-data">
                                                 @csrf
                                                 @method('PUT')
                                                 <div class="mb-2 row">

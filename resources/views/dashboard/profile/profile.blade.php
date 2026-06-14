@@ -68,14 +68,14 @@
                             <div class="row">
                                 <div class="col-12 col-sm-6 mb-1">
                                     <label class="form-label">Mot de passe actuel</label>
-                                    <input type="password" class="form-control" name="current_password" required />
+                                    <x-password-input name="current_password" required autocomplete="current-password" />
                                     @error('current_password')
                                         <h6 class="fw-bold mt-1 text-danger">{{ $message }}</h6>
                                     @enderror
                                 </div>
                                 <div class="col-12 col-sm-6 mb-1">
                                     <label class="form-label">Nouveau mot de passe</label>
-                                    <input type="password" class="form-control" name="password" required />
+                                    <x-password-input name="password" required autocomplete="new-password" />
                                     <div class="text-muted small mt-1">8 caractères minimum, majuscule, minuscule et chiffre.</div>
                                     @error('password')
                                         <h6 class="fw-bold mt-1 text-danger">{{ $message }}</h6>
@@ -83,7 +83,7 @@
                                 </div>
                                 <div class="col-12 col-sm-6 mb-1">
                                     <label class="form-label">Confirmer le mot de passe</label>
-                                    <input type="password" class="form-control" name="password_confirmation" required />
+                                    <x-password-input name="password_confirmation" required autocomplete="new-password" />
                                 </div>
                                 <div class="col-12">
                                     <button type="submit" class="btn btn-primary mt-1 me-1">Modifier</button>

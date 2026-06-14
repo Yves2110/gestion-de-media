@@ -15,9 +15,9 @@
                     @include('components.admin-content-actions', [
                         'item' => $audio,
                         'isPublished' => (bool) $audio->statut,
-                        'previewUrl' => route('public.audios.show', $audio->id),
-                        'editUrl' => route('audios.edit', $audio->id),
-                        'destroyUrl' => route('audios.destroy', $audio->id),
+                        'previewUrl' => route('public.audios.show', $audio),
+                        'editUrl' => route('audios.edit', $audio),
+                        'destroyUrl' => route('audios.destroy', $audio),
                         'activateUrl' => route('audios.activate', $audio->id),
                         'deactivateUrl' => route('audios.desactivate', $audio->id),
                         'reportUrl' => route('audios.report', $audio->id),

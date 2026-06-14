@@ -7,12 +7,13 @@
     @include('components.favicon')
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500;1,600" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="{{asset('css/app-assets/bootstrap.min.css')}}">
+    <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
     <title>Document</title>
 </head>
 <body>
     @yield('content')
 
-    
+    <script src="{{ asset('assets/js/password-toggle.js') }}"></script>
     <script>
         //script permettant de supprimer le bouton lors de l'affichage d'une erreur
         // Attendez que le DOM soit chargé

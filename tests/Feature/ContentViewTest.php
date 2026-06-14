@@ -47,7 +47,7 @@ class ContentViewTest extends TestCase
         ]);
 
         $this->actingAs($client)
-            ->get(route('catalogue.show', ['type' => 'audio', 'id' => $audio->id]))
+            ->get(route('catalogue.show', ['type' => 'audio', 'uuid' => $audio->uuid]))
             ->assertStatus(200);
 
         $this->assertEquals(1, ContentView::where('viewable_id', $audio->id)->where('action', 'view')->count());

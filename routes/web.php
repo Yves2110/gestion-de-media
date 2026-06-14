@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\LearningSpaceController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PublicDocumentController;
 use App\Http\Controllers\PublicMediaController;
@@ -24,6 +25,10 @@ use App\Http\Controllers\Thematique\ThematiqueController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+
+Route::get('espace-apprentissage', [LearningSpaceController::class, 'index'])->name('learning.index');
+Route::get('espace-apprentissage/suggestions', [LearningSpaceController::class, 'suggestions'])->name('learning.suggestions');
+
 Route::get('login', [LoginController::class, 'loginIndex'])->middleware('guest')->name('login');
 Route::post('login', [LoginController::class, 'login'])->middleware('guest')->name('login.attempt');
 Route::post('logout', [LoginController::class, 'logout'])->name('logout');
@@ -44,14 +49,14 @@ Route::redirect('proposer-document', '/contribuer/document');
 Route::post('proposer-document', [DocumentSubmissionController::class, 'store'])->middleware('throttle:public-forms')->name('documents.submit.store');
 Route::get('proposer-document', fn () => redirect()->route('contrib.documents.create'))->name('documents.submit');
 
-Route::get('bibliotheque/documents/{document}', [PublicDocumentController::class, 'show'])->name('public.documents.show');
-Route::get('bibliotheque/documents/{document}/telecharger', [PublicDocumentController::class, 'download'])->name('public.documents.download');
-Route::post('bibliotheque/documents/{document}/signaler', [PublicDocumentController::class, 'report'])->middleware('throttle:public-forms')->name('public.documents.report');
+Route::get('bibliotheque/documents/{document:uuid}', [PublicDocumentController::class, 'show'])->name('public.documents.show');
+Route::get('bibliotheque/documents/{document:uuid}/telecharger', [PublicDocumentController::class, 'download'])->name('public.documents.download');
+Route::post('bibliotheque/documents/{document:uuid}/signaler', [PublicDocumentController::class, 'report'])->middleware('throttle:public-forms')->name('public.documents.report');
 
-Route::get('bibliotheque/audios/{media}', [PublicMediaController::class, 'showAudio'])->name('public.audios.show');
-Route::get('bibliotheque/videos/{media}', [PublicMediaController::class, 'showVideo'])->name('public.videos.show');
-Route::post('bibliotheque/audios/{media}/signaler', [PublicMediaController::class, 'report'])->middleware('throttle:public-forms')->name('public.audios.report');
-Route::post('bibliotheque/videos/{media}/signaler', [PublicMediaController::class, 'report'])->middleware('throttle:public-forms')->name('public.videos.report');
+Route::get('bibliotheque/audios/{media:uuid}', [PublicMediaController::class, 'showAudio'])->name('public.audios.show');
+Route::get('bibliotheque/videos/{media:uuid}', [PublicMediaController::class, 'showVideo'])->name('public.videos.show');
+Route::post('bibliotheque/audios/{media:uuid}/signaler', [PublicMediaController::class, 'report'])->middleware('throttle:public-forms')->name('public.audios.report');
+Route::post('bibliotheque/videos/{media:uuid}/signaler', [PublicMediaController::class, 'report'])->middleware('throttle:public-forms')->name('public.videos.report');
 
 Route::controller(ForgotPasswordController::class)->group(function () {
     Route::get('forget-password', 'showForgetPasswordForm')->middleware('guest')->name('forget.password.get');
@@ -122,11 +127,11 @@ Route::middleware(['auth', 'ensure.admin'])->group(function () {
     Route::controller(DocumentController::class)->prefix('documents')->name('documents.')->group(function () {
         Route::post('activate/{id}', 'activateDocument')->name('activate');
         Route::post('desactivate/{id}', 'desactivateDocument')->name('desactivate');
-        Route::post('{document}/signaler', 'report')->name('report');
+        Route::post('{document:uuid}/signaler', 'report')->name('report');
         Route::get('localisation/{id}', 'localisationIndex')->name('localisation');
         Route::post('localisation', 'addLocalisation')->name('localisation.store');
         Route::post('localisation/{id}/remove', 'removeLocalisation')->name('localisation.destroy');
-        Route::get('{document}/download', 'download')->name('download');
+        Route::get('{document:uuid}/download', 'download')->name('download');
     });
 });
 
@@ -135,9 +140,9 @@ Route::middleware(['auth', 'ensure.client'])->prefix('catalogue')->name('catalog
     Route::get('audios', [CatalogueController::class, 'audios'])->name('audios');
     Route::get('videos', [CatalogueController::class, 'videos'])->name('videos');
     Route::get('documents', [CatalogueController::class, 'documents'])->name('documents');
-    Route::get('documents/{document}/download', [CatalogueController::class, 'downloadDocument'])->name('documents.download');
+    Route::get('documents/{document:uuid}/download', [CatalogueController::class, 'downloadDocument'])->name('documents.download');
     Route::get('profil', [ClientProfileController::class, 'show'])->name('profile');
     Route::post('profil', [ClientProfileController::class, 'updateData'])->name('profile.update');
     Route::post('profil/password', [ClientProfileController::class, 'updatePassword'])->name('profile.password');
-    Route::get('{type}/{id}', [CatalogueController::class, 'show'])->name('show');
+    Route::get('{type}/{uuid}', [CatalogueController::class, 'show'])->name('show');
 });

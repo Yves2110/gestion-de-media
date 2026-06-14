@@ -10,10 +10,10 @@ use App\Models\DocumentReport;
 use App\Models\Source;
 use App\Models\Thematique;
 use App\Rules\MinWords;
+use App\Support\CoverImageStorage;
 use App\Support\DocumentStorage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 
 class DocumentController extends Controller
 {
@@ -72,8 +72,7 @@ class DocumentController extends Controller
         }
 
         if ($request->hasFile('picture')) {
-            $pictureFile = date('YmdHis') . '_cover.' . $request->file('picture')->getClientOriginalExtension();
-            $request->file('picture')->storeAs('picture', $pictureFile, 'public');
+            $pictureFile = CoverImageStorage::store($request->file('picture'));
         }
 
         $category = Category::findOrFail($request->category_id);
@@ -112,9 +111,8 @@ class DocumentController extends Controller
         return view('document.show', compact('document', 'viewCount'));
     }
 
-    public function edit($id)
+    public function edit(Document $document)
     {
-        $document = Document::findOrFail($id);
         $sources = Source::all();
         $thematiques = Thematique::all();
         $categories = Category::orderBy('label')->get();
@@ -122,10 +120,8 @@ class DocumentController extends Controller
         return view('document.edit', compact('sources', 'thematiques', 'document', 'categories'));
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, Document $document)
     {
-        $document = Document::findOrFail($id);
-
         $request->validate([
             'file_doc' => 'nullable|mimes:pdf|max:40000',
             'picture' => 'nullable|image|max:5120',
@@ -154,11 +150,8 @@ class DocumentController extends Controller
 
         $pictureFile = $document->picture;
         if ($request->hasFile('picture')) {
-            if ($document->picture && Storage::disk('public')->exists('picture/' . $document->picture)) {
-                Storage::disk('public')->delete('picture/' . $document->picture);
-            }
-            $pictureFile = date('YmdHis') . '_cover.' . $request->file('picture')->getClientOriginalExtension();
-            $request->file('picture')->storeAs('picture', $pictureFile, 'public');
+            CoverImageStorage::delete($document->picture);
+            $pictureFile = CoverImageStorage::store($request->file('picture'));
         }
 
         $category = Category::findOrFail($request->category_id);
@@ -185,15 +178,13 @@ class DocumentController extends Controller
         return redirect()->route('documents.index')->with('message', 'Document mis à jour');
     }
 
-    public function destroy(Request $request, $id)
+    public function destroy(Request $request, Document $document)
     {
-        $document = Document::findOrFail($id);
-
         if ($document->file_doc) {
             DocumentStorage::delete($document->file_doc);
         }
-        if ($document->picture && Storage::disk('public')->exists('picture/' . $document->picture)) {
-            Storage::disk('public')->delete('picture/' . $document->picture);
+        if ($document->picture) {
+            CoverImageStorage::delete($document->picture);
         }
 
         $document->delete();

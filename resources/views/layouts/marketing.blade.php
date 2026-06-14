@@ -54,6 +54,9 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('home', ['type' => 'audios']) }}#publications">Audios</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('learning.*') ? 'active' : '' }}" href="{{ route('learning.index') }}">Espace d'apprentissage</a>
+                        </li>
                         <x-contrib-menu align="menu" />
 
                         @auth

@@ -51,5 +51,6 @@
         });
     </script>
     @stack('scripts')
+    <script src="{{ asset('assets/js/password-toggle.js') }}"></script>
 </body>
 </html>

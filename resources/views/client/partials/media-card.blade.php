@@ -8,7 +8,7 @@
     $typeColors = ['audio' => 'primary', 'video' => 'info', 'document' => 'success'];
     $label = $typeLabels[$type] ?? ucfirst($type);
     $color = $typeColors[$type] ?? 'secondary';
-    $link = $showRoute ?? route('catalogue.show', ['type' => $type, 'id' => $item->id]);
+    $link = $showRoute ?? route('catalogue.show', ['type' => $type, 'uuid' => $item->uuid]);
     $thumbUrl = $type === 'document'
         ? ($item->picture ? asset('storage/picture/' . $item->picture) : null)
         : MediaThumbnail::url($item);

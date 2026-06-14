@@ -5,11 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Document;
 use App\Models\Media;
 use App\Models\User;
+use App\Support\CoverImageStorage;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class HomeController extends Controller
@@ -96,7 +96,7 @@ class HomeController extends Controller
             'thumbnail' => $document->picture
                 ? asset('storage/picture/' . $document->picture)
                 : null,
-            'url' => route('public.documents.show', $document->id),
+            'url' => route('public.documents.show', $document),
         ]);
     }
 
@@ -117,7 +117,7 @@ class HomeController extends Controller
             'date' => $video->created_at,
             'thumbnail' => $video->thumbnail_url,
             'description' => Str::limit(strip_tags($video->description ?? ''), 160),
-            'url' => route('public.videos.show', $video->id),
+            'url' => route('public.videos.show', $video),
         ]);
     }
 
@@ -137,7 +137,7 @@ class HomeController extends Controller
             'auteur' => $audio->auteur,
             'date' => $audio->created_at,
             'thumbnail' => $audio->thumbnail_url,
-            'url' => route('public.audios.show', $audio->id),
+            'url' => route('public.audios.show', $audio),
         ]);
     }
 
@@ -196,7 +196,7 @@ class HomeController extends Controller
                     'auteur' => $audio->auteur,
                     'date' => $audio->created_at,
                     'thumbnail' => $audio->thumbnail_url,
-                    'url' => $this->publicationUrl('audio', $audio->id),
+                    'url' => route('public.audios.show', $audio),
                 ]);
             } elseif ($entry['type'] === 'video') {
                 $video = Media::with('source')->isvideo()->find($entry['id']);
@@ -211,7 +211,7 @@ class HomeController extends Controller
                     'date' => $video->created_at,
                     'thumbnail' => $video->thumbnail_url,
                     'description' => Str::limit(strip_tags($video->description ?? ''), 160),
-                    'url' => $this->publicationUrl('video', $video->id),
+                    'url' => route('public.videos.show', $video),
                 ]);
             } else {
                 $document = Document::with('source')->find($entry['id']);
@@ -227,7 +227,7 @@ class HomeController extends Controller
                     'thumbnail' => $document->picture
                         ? asset('storage/picture/' . $document->picture)
                         : null,
-                    'url' => $this->publicationUrl('document', $document->id),
+                    'url' => route('public.documents.show', $document),
                 ]);
             }
         }
@@ -244,7 +244,7 @@ class HomeController extends Controller
             ->merge(Media::where('statut', 1)->whereNotNull('picture')->where('picture', '!=', '')->latest()->limit(6)->get())
             ->sortByDesc('created_at')
             ->take(6)
-            ->filter(fn ($item) => $item->picture && Storage::disk('public')->exists('picture/' . $item->picture))
+            ->filter(fn ($item) => CoverImageStorage::isValid($item->picture))
             ->map(fn ($item) => asset('storage/picture/' . $item->picture))
             ->values()
             ->all();
@@ -263,15 +263,5 @@ class HomeController extends Controller
             fn ($index) => asset('assets/images/hero/hero-' . $index . '.svg'),
             range(1, 6)
         );
-    }
-
-    private function publicationUrl(string $type, int $id): string
-    {
-        return match ($type) {
-            'document' => route('public.documents.show', $id),
-            'audio' => route('public.audios.show', $id),
-            'video' => route('public.videos.show', $id),
-            default => route('home'),
-        };
     }
 }

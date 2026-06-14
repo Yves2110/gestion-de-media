@@ -15,9 +15,9 @@
                     @include('components.admin-content-actions', [
                         'item' => $video,
                         'isPublished' => (bool) $video->statut,
-                        'previewUrl' => route('public.videos.show', $video->id),
-                        'editUrl' => route('videos.edit', $video->id),
-                        'destroyUrl' => route('videos.destroy', $video->id),
+                        'previewUrl' => route('public.videos.show', $video),
+                        'editUrl' => route('videos.edit', $video),
+                        'destroyUrl' => route('videos.destroy', $video),
                         'activateUrl' => route('videos.activate', $video->id),
                         'deactivateUrl' => route('videos.desactivate', $video->id),
                         'reportUrl' => route('videos.report', $video->id),

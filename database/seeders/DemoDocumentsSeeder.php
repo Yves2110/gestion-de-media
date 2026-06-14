@@ -15,6 +15,7 @@ use App\Models\Thematique;
 
 use App\Models\User;
 
+use App\Support\CoverImageStorage;
 use App\Support\DemoText;
 
 use Illuminate\Database\Seeder;
@@ -22,6 +23,8 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Http;
 
 use Illuminate\Support\Facades\Storage;
+
+use Illuminate\Support\Str;
 
 
 
@@ -91,15 +94,15 @@ class DemoDocumentsSeeder extends Seeder
 
         $longResume = DemoText::words(250);
 
-
+        Document::where('file_doc', 'like', 'demo_%')->delete();
 
         $documents = [
 
             [
 
-                'title' => 'Renforcer la résilience communautaire',
+                'title' => 'Manuel de la méthode scientifique',
 
-                'auteur' => 'Équipe PDU',
+                'auteur' => 'Institut de recherche appliquée',
 
                 'categorie' => 'Rapport',
 
@@ -115,9 +118,9 @@ class DemoDocumentsSeeder extends Seeder
 
             [
 
-                'title' => 'Guide de l\'agriculture durable',
+                'title' => 'Conseils nutritionnels fondés sur la science',
 
-                'auteur' => 'Ministère de l\'Agriculture',
+                'auteur' => 'Observatoire santé publique',
 
                 'categorie' => 'Guide',
 
@@ -133,7 +136,7 @@ class DemoDocumentsSeeder extends Seeder
 
             [
 
-                'title' => 'Étude sur l\'accès à l\'eau potable',
+                'title' => 'Étude scientifique sur l\'accès à l\'eau potable',
 
                 'auteur' => 'ONG Terre des Hommes',
 
@@ -151,7 +154,7 @@ class DemoDocumentsSeeder extends Seeder
 
             [
 
-                'title' => 'Formation des leaders locaux',
+                'title' => 'Éléments de pédagogie scientifique',
 
                 'auteur' => 'Centre de formation',
 
@@ -169,7 +172,7 @@ class DemoDocumentsSeeder extends Seeder
 
             [
 
-                'title' => 'Cartographie des ressources locales',
+                'title' => 'Analyse géospatiale : méthodes scientifiques',
 
                 'auteur' => 'Cellule SIG',
 
@@ -187,9 +190,9 @@ class DemoDocumentsSeeder extends Seeder
 
             [
 
-                'title' => 'Bilan semestriel des activités',
+                'title' => 'Interprétation des données et indicateurs',
 
-                'auteur' => 'Coordination nationale',
+                'auteur' => 'Cellule évaluation scientifique',
 
                 'categorie' => 'Bilan',
 
@@ -257,9 +260,7 @@ class DemoDocumentsSeeder extends Seeder
 
             $pdfName = $slug . '.pdf';
 
-            $pictureName = $slug . '.jpg';
-
-
+            $pictureName = '';
 
             $this->ensurePdf('document/' . $pdfName, $data['title']);
 
@@ -267,7 +268,9 @@ class DemoDocumentsSeeder extends Seeder
 
             if ($index < count($this->covers)) {
 
-                $this->ensureCover('picture/' . $pictureName, $this->covers[$index]);
+                $pictureName = Str::uuid() . '.jpg';
+
+                $this->ensureCover(CoverImageStorage::path($pictureName), $this->covers[$index]);
 
             } else {
 
@@ -389,9 +392,19 @@ class DemoDocumentsSeeder extends Seeder
 
     {
 
-        if (Storage::disk('public')->exists($path)) {
+        $filename = basename($path);
+
+        if (Storage::disk('public')->exists($path) && CoverImageStorage::isValid($filename)) {
 
             return;
+
+        }
+
+
+
+        if (Storage::disk('public')->exists($path)) {
+
+            Storage::disk('public')->delete($path);
 
         }
 
@@ -405,9 +418,13 @@ class DemoDocumentsSeeder extends Seeder
 
                 Storage::disk('public')->put($path, $response->body());
 
+                if (CoverImageStorage::isValid($filename)) {
 
+                    return;
 
-                return;
+                }
+
+                Storage::disk('public')->delete($path);
 
             }
 

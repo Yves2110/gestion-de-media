@@ -9,6 +9,7 @@ use App\Models\Media;
 use App\Models\Source;
 use App\Models\Thematique;
 use App\Support\DocumentStorage;
+use App\Support\VisitorActivity;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -56,23 +57,26 @@ class CatalogueController extends Controller
         return view('client.documents', compact('documents', 'sources', 'thematiques'));
     }
 
-    public function show(string $type, int $id)
+    public function show(string $type, string $uuid)
     {
         if ($type === 'audio') {
-            $item = Media::with('source')->isAudio()->where('statut', 1)->findOrFail($id);
+            $item = Media::with('source')->isAudio()->where('statut', 1)->where('uuid', $uuid)->firstOrFail();
             ContentView::record($item, 'view');
+            VisitorActivity::recordModel($item, 'view');
             return view('client.show-media', ['item' => $item, 'type' => 'audio']);
         }
 
         if ($type === 'video') {
-            $item = Media::with('source')->isvideo()->where('statut', 1)->findOrFail($id);
+            $item = Media::with('source')->isvideo()->where('statut', 1)->where('uuid', $uuid)->firstOrFail();
             ContentView::record($item, 'view');
+            VisitorActivity::recordModel($item, 'view');
             return view('client.show-media', ['item' => $item, 'type' => 'video']);
         }
 
         if ($type === 'document') {
-            $item = Document::with('source')->where('statut_publication', 1)->findOrFail($id);
+            $item = Document::with('source')->where('statut_publication', 1)->where('uuid', $uuid)->firstOrFail();
             ContentView::record($item, 'view');
+            VisitorActivity::recordModel($item, 'view');
             return view('client.show-document', ['document' => $item]);
         }
 

@@ -14,11 +14,21 @@
                 @include('dashboard.components.onboarding-checklist')
             @endif
 
-            <div class="row match-height mb-2">
-                <div class="col-12">
-                    <h3>Bienvenue, {{ Auth::user()->firstname }} !</h3>
-                    <p class="text-muted">Vue d'ensemble de votre plateforme média.</p>
+            <div class="row align-items-center dashboard-hero mb-2 g-2">
+                <div class="col-md-8 col-lg-9">
+                    <h3 class="mb-1">Bienvenue, {{ Auth::user()->firstname }} !</h3>
+                    <p class="text-muted mb-0">Vue d'ensemble de votre plateforme média.</p>
                 </div>
+                @if (isset($viewsThisMonth))
+                <div class="col-md-4 col-lg-3">
+                    <div class="card dashboard-views-card border-primary mb-0 h-100">
+                        <div class="card-body py-2 px-3 d-flex flex-column justify-content-center text-md-end">
+                            <span class="text-muted small">Vues ce mois</span>
+                            <span class="dashboard-views-count">{{ $viewsThisMonth }}</span>
+                        </div>
+                    </div>
+                </div>
+                @endif
             </div>
 
             <div class="row g-3 mb-3">
@@ -68,19 +78,6 @@
                 </div>
             </div>
 
-            @if (isset($viewsThisMonth))
-            <div class="row g-3 mb-3">
-                <div class="col-md-4">
-                    <div class="card border-primary">
-                        <div class="card-body">
-                            <h6 class="text-muted">Vues ce mois</h6>
-                            <h3 class="mb-0">{{ $viewsThisMonth }}</h3>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            @endif
-
             <div class="card mb-3">
                 <div class="card-header"><h5 class="mb-0">Actions rapides</h5></div>
                 <div class="card-body d-flex flex-wrap gap-2">
@@ -93,44 +90,66 @@
 
             <div class="row g-3 mb-3">
                 <div class="col-lg-6">
-                    <div class="card h-100">
-                        <div class="card-header"><h5 class="mb-0">Activité récente</h5></div>
-                        <div class="card-body">
+                    <div class="card h-100 dashboard-list-card">
+                        <div class="card-header d-flex justify-content-between align-items-center py-2">
+                            <h5 class="mb-0">Activité récente</h5>
+                            @if ($recentActivity->total() > 0)
+                                <small class="text-muted">{{ $recentActivity->total() }} au total</small>
+                            @endif
+                        </div>
+                        <div class="card-body p-0">
                             @forelse ($recentActivity as $activity)
-                                <div class="d-flex justify-content-between border-bottom py-2">
+                                <div class="dashboard-list-item">
                                     <div>
                                         <span class="badge bg-light-secondary">{{ $activity['type'] }}</span>
-                                        <a href="{{ $activity['edit_route'] }}">{{ $activity['title'] }}</a>
-                                        <small class="text-muted d-block">{{ $activity['user'] ?? 'Utilisateur inconnu' }} | {{ $activity['date']->diffForHumans() }}</small>
+                                        <a href="{{ $activity['edit_route'] }}" class="dashboard-list-title">{{ $activity['title'] }}</a>
+                                        <small class="text-muted d-block">{{ $activity['user'] ?? 'Utilisateur inconnu' }} · {{ $activity['date']->diffForHumans() }}</small>
                                     </div>
                                 </div>
                             @empty
-                                @include('components.empty-state', [
-                                    'title' => 'Aucune activité',
-                                    'message' => 'Commencez par ajouter un contenu.',
-                                    'actionUrl' => route('audios.create'),
-                                    'actionLabel' => 'Ajouter un audio',
-                                ])
+                                <div class="p-3">
+                                    @include('components.empty-state', [
+                                        'title' => 'Aucune activité',
+                                        'message' => 'Commencez par ajouter un contenu.',
+                                        'actionUrl' => route('audios.create'),
+                                        'actionLabel' => 'Ajouter un audio',
+                                    ])
+                                </div>
                             @endforelse
                         </div>
+                        @if ($recentActivity->hasPages())
+                            <div class="card-footer py-2 dashboard-mini-pagination">
+                                {{ $recentActivity->links() }}
+                            </div>
+                        @endif
                     </div>
                 </div>
                 <div class="col-lg-6">
-                    <div class="card h-100">
-                        <div class="card-header"><h5 class="mb-0">Brouillons à publier</h5></div>
-                        <div class="card-body">
+                    <div class="card h-100 dashboard-list-card">
+                        <div class="card-header d-flex justify-content-between align-items-center py-2">
+                            <h5 class="mb-0">Brouillons à publier</h5>
+                            @if ($draftsToPublish->total() > 0)
+                                <small class="text-muted">{{ $draftsToPublish->total() }} en attente</small>
+                            @endif
+                        </div>
+                        <div class="card-body p-0">
                             @forelse ($draftsToPublish as $draft)
-                                <div class="d-flex justify-content-between align-items-center border-bottom py-2">
-                                    <div>
+                                <div class="dashboard-list-item d-flex justify-content-between align-items-center gap-2">
+                                    <div class="min-w-0">
                                         <span class="badge bg-warning">{{ $draft['type'] }}</span>
-                                        {{ $draft['title'] }}
+                                        <span class="dashboard-list-title d-block text-truncate">{{ $draft['title'] }}</span>
                                     </div>
-                                    <a href="{{ $draft['edit_route'] }}" class="btn btn-sm btn-outline-primary">Publier</a>
+                                    <a href="{{ $draft['edit_route'] }}" class="btn btn-sm btn-outline-primary flex-shrink-0">Publier</a>
                                 </div>
                             @empty
-                                <p class="text-muted mb-0">Aucun brouillon en attente.</p>
+                                <p class="text-muted mb-0 p-3">Aucun brouillon en attente.</p>
                             @endforelse
                         </div>
+                        @if ($draftsToPublish->hasPages())
+                            <div class="card-footer py-2 dashboard-mini-pagination">
+                                {{ $draftsToPublish->links() }}
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>

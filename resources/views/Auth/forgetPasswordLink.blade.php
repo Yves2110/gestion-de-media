@@ -34,8 +34,7 @@
                                 <div class="form-group row">
                                     <label for="password" class="col-md-4 col-form-label text-md-right">Mot de passe</label>
                                     <div class="col-md-6">
-                                        <input type="password" id="password" class="form-control my-1" name="password" required
-                                            autofocus>
+                                        <x-password-input id="password" name="password" class="my-1" required autocomplete="new-password" />
                                         @if ($errors->has('password'))
                                             <span class="text-danger">{{ $errors->first('password') }}</span>
                                         @endif
@@ -46,8 +45,7 @@
                                     <label for="password-confirm" class="col-md-4 col-form-label text-md-right">Confirmer le
                                         mot de passe</label>
                                     <div class="col-md-6">
-                                        <input type="password" id="password-confirm" class="form-control"
-                                            name="password_confirmation" required autofocus>
+                                        <x-password-input id="password-confirm" name="password_confirmation" required autocomplete="new-password" />
                                         @if ($errors->has('password_confirmation'))
                                             <span class="text-danger">{{ $errors->first('password_confirmation') }}</span>
                                         @endif

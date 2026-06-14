@@ -67,10 +67,10 @@
                                             @else
                                                 <x-icon-action icon="eye-off" title="Dépublier" action="{{ route('documents.desactivate', $document->id) }}" variant="warning" />
                                             @endif
-                                            <x-icon-action icon="eye" title="Aperçu public" href="{{ route('public.documents.show', $document->id) }}" variant="info" target="_blank" />
-                                            <x-icon-action icon="download" title="Télécharger PDF" href="{{ route('documents.download', $document->id) }}" variant="info" />
-                                            <x-icon-action icon="edit-2" title="Éditer" href="{{ route('documents.edit', $document->id) }}" variant="primary" />
-                                            <x-icon-action icon="trash-2" title="Supprimer" action="{{ route('documents.destroy', $document->id) }}" method="DELETE" variant="danger" confirm="Supprimer ce document ?" />
+                                            <x-icon-action icon="eye" title="Aperçu public" href="{{ route('public.documents.show', $document) }}" variant="info" target="_blank" />
+                                            <x-icon-action icon="download" title="Télécharger PDF" href="{{ route('documents.download', $document) }}" variant="info" />
+                                            <x-icon-action icon="edit-2" title="Éditer" href="{{ route('documents.edit', $document) }}" variant="primary" />
+                                            <x-icon-action icon="trash-2" title="Supprimer" action="{{ route('documents.destroy', $document) }}" method="DELETE" variant="danger" confirm="Supprimer ce document ?" />
                                         </div>
                                     </td>
                                 </tr>
